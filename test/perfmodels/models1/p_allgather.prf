@@ -1,0 +1,15 @@
+#
+# test profile
+# no blank lines allowed (only at the end)
+#
+MPI_Allgather # collective name
+4 # profile for p=4 procs
+3
+1 allgather_as_allreduce 
+2 allgather_as_alltoall 
+3 allgather_as_gather_bcast
+4 # nb of (msg size range + alg id)
+16 16 1
+32 32 2
+64 128 1
+1024 2048 3
