@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
+#include <errno.h>
 
 #include "pgmpi_tune.h"
 #include "pgmpi_buf.h"
@@ -23,39 +24,42 @@ static int msg_buf2_in_use;
 static int int_buf1_in_use;
 static int int_buf2_in_use;
 
-#ifdef OPTION_ENABLE_MEMALIGNED_BUFFERS
-static size_t buf_alignment = 0;
-static const size_t BUFFER_ALIGNMENT_DEFAULT = 64;
+static void* pgmpi_calloc(size_t count, size_t elem_size) {
+  void *buf = NULL;
 
-void set_alloc_alignment_buf(size_t align) {
+#ifdef OPTION_BUFFER_ALIGNMENT
   int is_power_of_two;
-  ZF_LOGV("initialize alignment with size %zu", align);
+  int err;
+  size_t align = OPTION_BUFFER_ALIGNMENT;
+  ZF_LOGV("initialize aligned buffer with size %zu (alignment factor: %zu)", count * elem_size, align);
 
   assert(align > 0);
   assert(align % sizeof(void*) == 0);   // multiple of sizeof(void*)
   is_power_of_two = !(align & (align-1));
   assert(is_power_of_two);
 
-  buf_alignment = align;
-}
-#endif
-
-
-void* pgmpi_malloc(size_t count, size_t elem_size) {
-  void *buf = NULL;
-
-#ifdef OPTION_ENABLE_MEMALIGNED_BUFFERS
-  set_alloc_alignment_buf(BUFFER_ALIGNMENT_DEFAULT);
-#ifdef OPTION_BUFFER_ALIGNMENT
-  set_alloc_alignment_buf(OPTION_BUFFER_ALIGNMENT);
-#endif
-  posix_memalign(&buf, buf_alignment, count*elem_size);
-
+  err = posix_memalign(&buf, align, count*elem_size);
+  if (err == ENOMEM) {
+    ZF_LOGE("Cannot allocate memory with size %zu Bytes\n", count*elem_size);
+    buf = NULL;
+  }
+  if (err == EINVAL) {
+    ZF_LOGE("Cannot allocate memory with alignment %zu\n", align);
+    buf = NULL;
+  }
 #else
+  errno = 0;
+  ZF_LOGV("initialize non-aligned buffer with size %zu", count * elem_size);
   buf = calloc(count, elem_size);
+
+  if (errno == ENOMEM) {
+    ZF_LOGE("Cannot allocate memory with size %zu Bytes\n", count*elem_size);
+    buf = NULL;
+  }
 #endif
   return buf;
 }
+
 
 int pgmpi_allocate_buffers(const size_t size_msg_buffer, const size_t size_int_buffer) {
   int ret = BUF_NO_ERROR;
@@ -65,8 +69,8 @@ int pgmpi_allocate_buffers(const size_t size_msg_buffer, const size_t size_int_b
 
   ZF_LOGV("initialize buffer with sizes %zu / %zu", size_msg_buffer, size_int_buffer);
 
-  msg_buf = (char*) pgmpi_malloc(total_msg_buf_size, sizeof(char));
-  int_buf = (int*) pgmpi_malloc(total_int_buf_size / sizeof(int), sizeof(int));
+  msg_buf = (char*)pgmpi_calloc(total_msg_buf_size, sizeof(char));
+  int_buf = (int*)pgmpi_calloc(total_int_buf_size / sizeof(int), sizeof(int));
 
   offset_msg_buf2 = 0;
   offset_int_buf2 = 0;
