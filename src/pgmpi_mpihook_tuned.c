@@ -105,9 +105,11 @@ static int context_get_algorithm(pgmpi_collectives_t cid, int msg_size, int comm
     int *alg_id) {
   int res;
 
+  *alg_id = 0;
+
   res = pgmpi_find_replacement_algorithm(&lookup, cid, msg_size, comm_size, alg_id);
 
-  if (res != MPI_SUCCESS) {
+  if (res != 0) {
     ZF_LOGV("Cannot set algorithm for collective %u (%d, %d), reset alg to 0", cid, msg_size, comm_size);
     *alg_id = 0;
   }
