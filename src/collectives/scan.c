@@ -72,10 +72,11 @@ int MPI_Scan_as_Exscan_Reduce_local(const void* sendbuf, void* recvbuf, int coun
   ZF_LOGV("Calling MPI_Scan_as_Exscan_Reduce_local");
 
   PGMPI(MPI_Exscan(sendbuf, recvbuf, count, datatype, op, comm));
-  PGMPI(MPI_Reduce_local(sendbuf, recvbuf, count, datatype, op));
 
-  if (rank == 0) {        // recvbuf is undefined on process 0 after Exscan
+  if (rank == 0) {        // recvbuf is not modified by Exscan on process 0 (should be identical to sendbuf)
     memcpy(recvbuf, sendbuf, count * type_extent);
+  } else {
+    PGMPI(MPI_Reduce_local(sendbuf, recvbuf, count, datatype, op));
   }
   return MPI_SUCCESS;
 }
