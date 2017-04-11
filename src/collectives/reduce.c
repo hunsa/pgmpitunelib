@@ -90,13 +90,13 @@ int MPI_Reduce_as_Allreduce(const void* sendbuf, void* recvbuf, int count, MPI_D
     return MPI_ERR_NO_MEM;
   }
 
-  // use a temporary buffer allocated on all processes as the receive buffer
-  PGMPI(MPI_Allreduce(sendbuf, aux_buf1, n, datatype, op, comm));
+  if (rank == root) {      // the real receive buffer is allocated on the root
+    PGMPI(MPI_Allreduce(sendbuf, recvbuf, n, datatype, op, comm));
 
-  if (rank == root) {
-    ZF_LOGV("copy from aux_buf1 into recvbuf: %zu", n * type_extent);
-    memcpy(recvbuf, aux_buf1, n * type_extent);
+  } else { // use a temporary buffer allocated on all other processes as the receive buffer
+    PGMPI(MPI_Allreduce(sendbuf, aux_buf1, n, datatype, op, comm));
   }
+
 
   release_msg_buffers();
   return MPI_SUCCESS;
