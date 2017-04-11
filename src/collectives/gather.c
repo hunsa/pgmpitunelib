@@ -189,7 +189,7 @@ int MPI_Gather_as_Reduce(const void* sendbuf, int sendcount, MPI_Datatype sendty
 
   memset(aux_buf1, 0, fake_buf_size);
   // copy sendbuf to the block corresponding to the current rank
-  memcpy(aux_buf1 + (rank * n * type_extent), sendbuf, n * type_extent);
+  memcpy((char*)aux_buf1 + (rank * n * type_extent), sendbuf, n * type_extent);
 
   PGMPI(MPI_Reduce(aux_buf1, recvbuf, fake_buf_size, MPI_CHAR, op, root, comm));
 

@@ -147,7 +147,7 @@ int MPI_Allgather_as_Allreduce(const void *sendbuf, int sendcount,
 
   memset(aux_buf1, 0, fake_buf_size);
   // copy sendbuf to the block corresponding to the current rank
-  memcpy(aux_buf1 + (rank * sendbuf_size), sendbuf, sendbuf_size);
+  memcpy((char*)aux_buf1 + (rank * sendbuf_size), sendbuf, sendbuf_size);
 
   PGMPI(MPI_Allreduce(aux_buf1, recvbuf, fake_buf_size, MPI_CHAR, op, comm));
 
@@ -184,7 +184,7 @@ int MPI_Allgather_as_Alltoall(const void *sendbuf, int sendcount,
 
   for(i=0; i<size; i++) {
     ZF_LOGV("copy to aux_buf into %zu", i*sendbuf_size);
-    memcpy((char*)(aux_buf1 + (i*sendbuf_size)), sendbuf, sendbuf_size);
+    memcpy((char*)aux_buf1 + (i*sendbuf_size), sendbuf, sendbuf_size);
   }
 
   PGMPI(MPI_Alltoall(aux_buf1, sendcount, sendtype, recvbuf, recvcount, recvtype, comm));

@@ -98,7 +98,7 @@ int MPI_Scatter_as_Bcast(const void* sendbuf, int sendcount, MPI_Datatype sendty
   PGMPI(MPI_Bcast(bcast_buf, count, sendtype, root, comm));
 
   // copy results to the receive buffer on each process
-  memcpy(recvbuf, bcast_buf + rank * n * type_extent, n * type_extent);
+  memcpy(recvbuf, (char*)bcast_buf + rank * n * type_extent, n * type_extent);
 
   release_msg_buffers();
   return MPI_SUCCESS;

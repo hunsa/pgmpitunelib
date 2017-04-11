@@ -177,7 +177,7 @@ int MPI_Reduce_scatter_block_as_Allreduce(const void* sendbuf, void* recvbuf, co
   PGMPI(MPI_Allreduce(sendbuf, aux_buf1, count, datatype, op, comm));
 
   ZF_LOGV("copy from aux_buf1 into recvbuf: %zu", recvbuf_size);
-  memcpy(recvbuf, (char*)(aux_buf1 + rank * recvbuf_size), recvbuf_size);
+  memcpy(recvbuf, (char*)(aux_buf1) + rank * recvbuf_size, recvbuf_size);
 
   release_msg_buffers();
   return MPI_SUCCESS;
