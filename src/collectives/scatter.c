@@ -68,7 +68,7 @@ int MPI_Scatter_as_Bcast(const void* sendbuf, int sendcount, MPI_Datatype sendty
   int n;
   MPI_Aint type_extent, lb;
   size_t fake_buf_size;
-  void *aux_buf1;
+  void *aux_buf1, *bcast_buf;
   int buf_status = BUF_NO_ERROR;
 
   MPI_Comm_rank(comm, &rank);
@@ -89,14 +89,16 @@ int MPI_Scatter_as_Bcast(const void* sendbuf, int sendcount, MPI_Datatype sendty
     return MPI_ERR_NO_MEM;
   }
 
-  // make sure that the broadcasted buffer is allocated on all processes
   if (rank == root) { // sendbuf is only defined at the root
-    memcpy(aux_buf1, sendbuf, count * type_extent);
+    bcast_buf = (void*)sendbuf;
+  } else {      // all other processes will use the fake buffer to receive the broadcasted data
+    bcast_buf = aux_buf1;
   }
-  PGMPI(MPI_Bcast(aux_buf1, count, sendtype, root, comm));
+
+  PGMPI(MPI_Bcast(bcast_buf, count, sendtype, root, comm));
 
   // copy results to the receive buffer on each process
-  memcpy(recvbuf, aux_buf1 + rank * n * type_extent, n * type_extent);
+  memcpy(recvbuf, bcast_buf + rank * n * type_extent, n * type_extent);
 
   release_msg_buffers();
   return MPI_SUCCESS;
