@@ -91,13 +91,14 @@ int MPI_Gather_as_Allgather(const void* sendbuf, int sendcount, MPI_Datatype sen
     return MPI_ERR_NO_MEM;
   }
 
-  // use a temporary buffer allocated on all processes as the receive buffer
-  PGMPI(MPI_Allgather(sendbuf, sendcount, sendtype,
-                      aux_buf1, recvcount, recvtype,
-                      comm));
-
-  if (rank == root) {      // receive buffer is only required at the root
-    memcpy(recvbuf, aux_buf1, fake_buf_size);
+  if (rank == root) {      // the real receive buffer is allocated on the root
+    PGMPI(MPI_Allgather(sendbuf, sendcount, sendtype,
+                        recvbuf, recvcount, recvtype,
+                        comm));
+  } else { // use a temporary buffer allocated on all other processes as the receive buffer
+    PGMPI(MPI_Allgather(sendbuf, sendcount, sendtype,
+                        aux_buf1, recvcount, recvtype,
+                        comm));
   }
 
   release_msg_buffers();
