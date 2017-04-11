@@ -19,4 +19,6 @@ void pgmpi_save_algid_for_msg_size(const pgmpi_collectives_t cid, const int msg_
 
 void pgmpi_print_algids(FILE *fp);
 
+int pgmpi_convert_type_count_2_bytes(const int count, const MPI_Datatype type);
+
 #endif /* SRC_PGMPI_ALGID_STORE_H_ */

@@ -110,3 +110,10 @@ void pgmpi_print_algids(FILE *fp) {
   }
 }
 
+int pgmpi_convert_type_count_2_bytes(const int count, const MPI_Datatype type) {
+  int lb, extent;
+  MPI_Type_get_extent(type, &lb, &extent);
+  return count * extent;
+}
+
+

@@ -195,7 +195,8 @@ int MPI_Reduce_scatter_block(const void* sendbuf, void* recvbuf, const int recvc
   MPI_Comm_size(comm, &size);
 
   if( get_pgmpi_context() == CONTEXT_TUNED ) {
-    (void)pgtune_get_algorithm(CID_MPI_REDUCESCATTERBLOCK, recvcount, size, &alg_id);
+    (void) pgtune_get_algorithm(CID_MPI_REDUCESCATTERBLOCK, pgmpi_convert_type_count_2_bytes(recvcount, datatype), size,
+        &alg_id);
   }
 
   switch (alg_id) {
@@ -226,7 +227,8 @@ int MPI_Reduce_scatter_block(const void* sendbuf, void* recvbuf, const int recvc
   }
 
   if (PGMPI_ENABLE_ALGID_STORING) {
-    pgmpi_save_algid_for_msg_size(CID_MPI_REDUCESCATTERBLOCK, recvcount, alg_id, call_default);
+    pgmpi_save_algid_for_msg_size(CID_MPI_REDUCESCATTERBLOCK, pgmpi_convert_type_count_2_bytes(recvcount, datatype),
+        alg_id, call_default);
   }
 
   return MPI_SUCCESS;

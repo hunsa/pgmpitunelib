@@ -255,7 +255,7 @@ int MPI_Allreduce(const void *sendbuf, void *recvbuf, int count,
   MPI_Comm_size(comm, &size);
 
   if( get_pgmpi_context() == CONTEXT_TUNED ) {
-    (void)pgtune_get_algorithm(CID_MPI_ALLREDUCE, count, size, &alg_id);
+    (void) pgtune_get_algorithm(CID_MPI_ALLREDUCE, pgmpi_convert_type_count_2_bytes(count, datatype), size, &alg_id);
   }
 
   switch (alg_id) {
@@ -286,7 +286,8 @@ int MPI_Allreduce(const void *sendbuf, void *recvbuf, int count,
   }
 
   if (PGMPI_ENABLE_ALGID_STORING) {
-    pgmpi_save_algid_for_msg_size(CID_MPI_ALLREDUCE, count, alg_id, call_default);
+    pgmpi_save_algid_for_msg_size(CID_MPI_ALLREDUCE, pgmpi_convert_type_count_2_bytes(count, datatype), alg_id,
+        call_default);
   }
 
   return MPI_SUCCESS;
