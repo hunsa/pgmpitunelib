@@ -83,7 +83,7 @@ int MPI_Allreduce_as_Reduce_Bcast(const void *sendbuf, void *recvbuf, int count,
 
 int MPI_Allreduce_as_Reduce_scatter_block_Allgather(const void *sendbuf, void *recvbuf, int count,
     MPI_Datatype datatype, MPI_Op op, MPI_Comm comm) {
-  int n;
+  int n, i;
   int n_padding_elems;
   void *sendbuf1;
   void *recvbuf1;
@@ -95,6 +95,7 @@ int MPI_Allreduce_as_Reduce_scatter_block_Allgather(const void *sendbuf, void *r
   size_t fake_buf_size1, fake_buf_size2;
   void *aux_buf1, *aux_buf2;
   int buf_status = BUF_NO_ERROR;
+  MPI_Aint padding_offset;
 
   MPI_Comm_rank(comm, &rank);
   MPI_Comm_size(comm, &size);
@@ -132,6 +133,14 @@ int MPI_Allreduce_as_Reduce_scatter_block_Allgather(const void *sendbuf, void *r
 
   // copy the send buffer to the beginning of the padded temporary buffer
   memcpy(sendbuf1, sendbuf, n * type_extent);
+
+  // fill in the padded elements to make sure we apply Reduce on user data
+  padding_offset = n * type_extent;
+  for (i=0; i<n_padding_elems; i++) {
+    memcpy((char*)sendbuf1 + padding_offset, sendbuf, type_extent);  // only use the first element from sendbuf
+
+    padding_offset += type_extent;
+  }
 
   PGMPI(MPI_Reduce_scatter_block(sendbuf1, recvbuf1, recvcount1, datatype, op, comm));
 
