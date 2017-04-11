@@ -106,10 +106,6 @@ int MPI_Reduce_as_Reduce_scatter_block_Gather(const void* sendbuf, void* recvbuf
     MPI_Op op, int root, MPI_Comm comm) {
   int n;
   int n_padding_elems;
-  void *sendbuf1;
-  void *recvbuf1;
-  void *sendbuf2;
-  void *recvbuf2;
   int recvcount1, sendcount2, recvcount2;
   int rank, size;
   MPI_Aint type_extent, lb;
@@ -147,25 +143,21 @@ int MPI_Reduce_as_Reduce_scatter_block_Gather(const void* sendbuf, void* recvbuf
     return MPI_ERR_NO_MEM;
   }
 
-  sendbuf1 = aux_buf1;   // padded send buffer
-  recvbuf1 = aux_buf2;   // receive buffer after scatter
   recvcount1 = fake_buf_size2 / type_extent;
 
   // copy the send buffer to the beginning of the padded temporary buffer
-  memcpy(sendbuf1, sendbuf, n * type_extent);
+  memcpy(aux_buf1, sendbuf, n * type_extent);
 
-  PGMPI(MPI_Reduce_scatter_block(sendbuf1, recvbuf1, recvcount1, datatype, op, comm));
+  PGMPI(MPI_Reduce_scatter_block(aux_buf1, aux_buf2, recvcount1, datatype, op, comm));
 
-  sendbuf2 = recvbuf1;   // send buffer per process (reuse previous receive buffer)
-  recvbuf2 = aux_buf1;   // padded receive buffer to hold the final result
   sendcount2 = recvcount1;
   recvcount2 = recvcount1;
 
   ZF_LOGV("recvcount2: %d", recvcount2);
-  PGMPI(MPI_Gather(sendbuf2, sendcount2, datatype, recvbuf2, recvcount2, datatype, root, comm));
+  PGMPI(MPI_Gather(aux_buf2, sendcount2, datatype, aux_buf1, recvcount2, datatype, root, comm));
 
   if (rank == root) {           // copy only the needed data to the final receive buffer
-    memcpy(recvbuf, recvbuf2, n * type_extent);
+    memcpy(recvbuf, aux_buf1, n * type_extent);
   }
 
   release_msg_buffers();
