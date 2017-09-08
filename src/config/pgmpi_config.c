@@ -21,36 +21,36 @@
 static pgmpi_config_t config;
 
 void pgmpi_config_init() {
-  config.config_dict = (reprompib_dictionary_t *)calloc(1, sizeof(reprompib_dictionary_t));
-  reprompib_init_dictionary(config.config_dict);
+  config.config_dict = (pgmpi_dictionary_t *)calloc(1, sizeof(pgmpi_dictionary_t));
+  pgmpitune_init_dictionary(config.config_dict);
 
-  reprompib_add_element_to_dict(config.config_dict, "size_msg_buffer_bytes", "100000000");
-  reprompib_add_element_to_dict(config.config_dict, "size_int_buffer_bytes", "10000");
+  pgmpitune_add_element_to_dict(config.config_dict, "size_msg_buffer_bytes", "100000000");
+  pgmpitune_add_element_to_dict(config.config_dict, "size_int_buffer_bytes", "10000");
 }
 
 void pgmpi_config_free() {
-  reprompib_cleanup_dictionary(config.config_dict);
+  pgmpitune_cleanup_dictionary(config.config_dict);
   free(config.config_dict);
 }
 
 void pgmpi_config_add_key_value(const char *key, const char *val) {
   assert( key != NULL );
   assert( val != NULL );
-  reprompib_add_element_to_dict(config.config_dict, key, val);
+  pgmpitune_add_element_to_dict(config.config_dict, key, val);
 }
 
 
 void pgmpi_config_get_keys(char ***keys, int *nkeys) {
-  reprompib_get_keys_from_dict(config.config_dict, keys, nkeys);
+  pgmpitune_get_keys_from_dict(config.config_dict, keys, nkeys);
 }
 
 int pgmpi_config_get_long_value(const char *key, unsigned long *val) {
   int ret = -1;
 
   assert(key != NULL);
-  if (reprompib_dict_has_key(config.config_dict, key)) {
+  if (pgmpitune_dict_has_key(config.config_dict, key)) {
     char *valstr = NULL;
-    valstr = reprompib_get_value_from_dict(config.config_dict, key);
+    valstr = pgmpitune_get_value_from_dict(config.config_dict, key);
     if( valstr != NULL ) {
       ZF_LOGV("valstr=%s", valstr);
       *val = atol(valstr);
@@ -67,8 +67,8 @@ int pgmpi_config_get_string_value(const char *key, char **val) {
 
   assert(key != NULL);
 
-  if (reprompib_dict_has_key(config.config_dict, key)) {
-    *val = reprompib_get_value_from_dict(config.config_dict, key);
+  if (pgmpitune_dict_has_key(config.config_dict, key)) {
+    *val = pgmpitune_get_value_from_dict(config.config_dict, key);
     ret = 0;
   }
 
@@ -86,11 +86,11 @@ void pgmpi_config_print(FILE *fp) {
     return;
   }
 
-  reprompib_get_keys_from_dict(config.config_dict, &keys, &nkeys);
+  pgmpitune_get_keys_from_dict(config.config_dict, &keys, &nkeys);
 
   for(i=0; i<nkeys; i++) {
     char *val;
-    val = reprompib_get_value_from_dict(config.config_dict, keys[i]);
+    val = pgmpitune_get_value_from_dict(config.config_dict, keys[i]);
     if( val != NULL ) {
       fprintf(fp, "#@pgmpi config %s %s\n", keys[i], val);
     } else {

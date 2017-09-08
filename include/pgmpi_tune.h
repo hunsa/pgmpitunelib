@@ -61,7 +61,7 @@ void finalize_pgtune_lib();
 
 int get_pgmpi_context();
 
-reprompib_dictionary_t *pgmpi_context_get_cli_dict();
+pgmpi_dictionary_t *pgmpi_context_get_cli_dict();
 
 #ifdef USE_PMPI
 #define PGMPI_COMM_SIZE PMPI_Comm_size

@@ -24,7 +24,7 @@
 #define ZF_LOG_LEVEL MY_ZF_LOG_LEVEL
 #include "log/zf_log.h"
 
-static reprompib_dictionary_t hashmap;
+static pgmpi_dictionary_t hashmap;
 
 extern pgmpi_context_hook_t context;
 
@@ -52,7 +52,7 @@ void fill_and_read_pgmpi_config() {
 
   pgmpi_config_init();
 
-  conf_fname = reprompib_get_value_from_dict(&hashmap, "config_file");
+  conf_fname = pgmpitune_get_value_from_dict(&hashmap, "config_file");
 
   if( conf_fname == NULL ) {
     ZF_LOGV("no config file found in CLI, trying env");
@@ -81,7 +81,7 @@ void free_pgmpi_config() {
 
 void init_pgtune_lib(int *argc, char ***argv) {
 
-  reprompib_init_dictionary(&hashmap);
+  pgmpitune_init_dictionary(&hashmap);
 
   pgmpi_modules_init();
 
@@ -124,12 +124,12 @@ void finalize_pgtune_lib() {
 
   pgmpi_modules_free();
 
-  reprompib_cleanup_dictionary(&hashmap);
+  pgmpitune_cleanup_dictionary(&hashmap);
 
 }
 
 
-reprompib_dictionary_t *pgmpi_context_get_cli_dict() {
+pgmpi_dictionary_t *pgmpi_context_get_cli_dict() {
   return &hashmap;
 }
 

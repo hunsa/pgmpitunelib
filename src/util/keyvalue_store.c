@@ -30,17 +30,17 @@
 static const int LEN_KEYVALUE_LIST_BATCH = 4;
 
 
-//static reprompib_dictionary_t dict;
+//static pgmpitune_dictionary_t dict;
 
-void reprompib_init_dictionary(reprompib_dictionary_t* dict) {
+void pgmpitune_init_dictionary(pgmpi_dictionary_t* dict) {
 
     dict->size = LEN_KEYVALUE_LIST_BATCH;
     dict->n_elems = 0;
-    dict->data = (reprompib_dict_keyval_t *) malloc(LEN_KEYVALUE_LIST_BATCH * sizeof(reprompib_dict_keyval_t));
+    dict->data = (pgmpi_dict_keyval_t *) malloc(LEN_KEYVALUE_LIST_BATCH * sizeof(pgmpi_dict_keyval_t));
 }
 
 
-void reprompib_cleanup_dictionary(reprompib_dictionary_t* dict) {
+void pgmpitune_cleanup_dictionary(pgmpi_dictionary_t* dict) {
     if (dict->data != NULL) {
         int i;
         for (i =0; i<dict->n_elems; i++) {
@@ -54,8 +54,8 @@ void reprompib_cleanup_dictionary(reprompib_dictionary_t* dict) {
 }
 
 
-reprompib_dict_error_t reprompib_add_element_to_dict(reprompib_dictionary_t* dict, const char* key, const char* val) {
-    reprompib_dict_error_t ok = DICT_SUCCESS;
+pgmpitune_dict_error_t pgmpitune_add_element_to_dict(pgmpi_dictionary_t* dict, const char* key, const char* val) {
+    pgmpitune_dict_error_t ok = DICT_SUCCESS;
     int i;
 
     if (key!=NULL && val!= NULL) {
@@ -84,13 +84,13 @@ reprompib_dict_error_t reprompib_add_element_to_dict(reprompib_dictionary_t* dic
 
     if (dict->n_elems == dict->size) {
         dict->size += LEN_KEYVALUE_LIST_BATCH;
-        dict->data = (reprompib_dict_keyval_t*) realloc(dict->data, dict->size * sizeof(reprompib_dict_keyval_t));
+        dict->data = (pgmpi_dict_keyval_t*) realloc(dict->data, dict->size * sizeof(pgmpi_dict_keyval_t));
     }
     return ok;
 }
 
 
-char* reprompib_get_value_from_dict(const reprompib_dictionary_t* dict, const char* key) {
+char* pgmpitune_get_value_from_dict(const pgmpi_dictionary_t* dict, const char* key) {
     char* val = NULL;
     int i = 0;
 
@@ -109,8 +109,8 @@ char* reprompib_get_value_from_dict(const reprompib_dictionary_t* dict, const ch
 }
 
 
-reprompib_dict_error_t reprompib_remove_element_from_dict(reprompib_dictionary_t* dict, const char* key) {
-  reprompib_dict_error_t ok = DICT_SUCCESS;
+pgmpitune_dict_error_t pgmpitune_remove_element_from_dict(pgmpi_dictionary_t* dict, const char* key) {
+  pgmpitune_dict_error_t ok = DICT_SUCCESS;
     int i = 0, j;
 
     if (key == NULL) {
@@ -140,7 +140,7 @@ reprompib_dict_error_t reprompib_remove_element_from_dict(reprompib_dictionary_t
 
 
 
-reprompib_dict_error_t reprompib_get_keys_from_dict(const reprompib_dictionary_t* dict, char ***keys, int *length) {
+pgmpitune_dict_error_t pgmpitune_get_keys_from_dict(const pgmpi_dictionary_t* dict, char ***keys, int *length) {
   int i;
   *length = dict->n_elems;
   *keys = (char**) calloc(dict->n_elems, sizeof(char*));
@@ -152,16 +152,16 @@ reprompib_dict_error_t reprompib_get_keys_from_dict(const reprompib_dictionary_t
 }
 
 
-int reprompib_dict_is_empty(const reprompib_dictionary_t* dict) {
+int pgmpitune_dict_is_empty(const pgmpi_dictionary_t* dict) {
   return (dict->n_elems == 0);
 }
 
-int reprompib_dict_get_length(const reprompib_dictionary_t* dict) {
+int pgmpitune_dict_get_length(const pgmpi_dictionary_t* dict) {
   return dict->n_elems;
 }
 
 
-int reprompib_dict_has_key(const reprompib_dictionary_t* dict, const char *key) {
+int pgmpitune_dict_has_key(const pgmpi_dictionary_t* dict, const char *key) {
   int i;
   int found_key = 0;
 
@@ -175,7 +175,7 @@ int reprompib_dict_has_key(const reprompib_dictionary_t* dict, const char *key) 
 }
 
 
-void reprompib_print_dictionary(const reprompib_dictionary_t* dict, FILE* f) {
+void pgmpitune_print_dictionary(const pgmpi_dictionary_t* dict, FILE* f) {
     int i = 0;
 
     if (dict->n_elems > 0) {

@@ -40,10 +40,10 @@ static void pass_cli_arguments_to_modules();
 static void pass_cli_arguments_to_modules() {
   int nkeys, i, j;
   char **keys;
-  reprompib_dictionary_t *hashmap;
+  pgmpi_dictionary_t *hashmap;
 
   hashmap = pgmpi_context_get_cli_dict();
-  reprompib_get_keys_from_dict(hashmap, &keys, &nkeys);
+  pgmpitune_get_keys_from_dict(hashmap, &keys, &nkeys);
   for (i = 0; i < nkeys; i++) {
     for (j = 0; j < pgmpi_modules_get_number(); j++) {
       int slength = strlen(keys[i]);
@@ -53,7 +53,7 @@ static void pass_cli_arguments_to_modules() {
       mod = pgmpi_modules_get(j);
       slength2 = strlen(mod->cli_prefix);
       if (slength == slength2 && strncmp(mod->cli_prefix, keys[i], slength) == 0) {
-        char *val = reprompib_get_value_from_dict(hashmap, keys[i]);
+        char *val = pgmpitune_get_value_from_dict(hashmap, keys[i]);
         mod->parse(val);
         free(val);
       }

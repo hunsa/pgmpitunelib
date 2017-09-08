@@ -74,7 +74,7 @@ void get_key_val_from_env(char *arg, char **key, char **val) {
 
 // -m allgather=alg:1
 
-void parse_cli_arguments(reprompib_dictionary_t *dict, int *argc, char ***argv) {
+void parse_cli_arguments(pgmpi_dictionary_t *dict, int *argc, char ***argv) {
   int i;
 
   for(i=0; i<*argc; i++) {
@@ -101,7 +101,7 @@ void parse_cli_arguments(reprompib_dictionary_t *dict, int *argc, char ***argv) 
 
       if( key != NULL && val != NULL ) {
         ZF_LOGV("key=%s, val=%s", key, val);
-        reprompib_add_element_to_dict(dict, key, val);
+        pgmpitune_add_element_to_dict(dict, key, val);
       } else {
         ZF_LOGW("cannot parse: %s", val);
       }
@@ -111,10 +111,10 @@ void parse_cli_arguments(reprompib_dictionary_t *dict, int *argc, char ***argv) 
 
     } else if( strcmp(arg_key, "--config") == 0 ) {
       ZF_LOGV("adding config_file %s", arg_val);
-      reprompib_add_element_to_dict(dict, "config_file", arg_val);
+      pgmpitune_add_element_to_dict(dict, "config_file", arg_val);
     } else if( strcmp(arg_key, "--ppath") == 0 ) {
       ZF_LOGV("adding profile_path %s", arg_val);
-      reprompib_add_element_to_dict(dict, "profile_path", arg_val);
+      pgmpitune_add_element_to_dict(dict, "profile_path", arg_val);
     }
 
   }
@@ -122,7 +122,7 @@ void parse_cli_arguments(reprompib_dictionary_t *dict, int *argc, char ***argv) 
 }
 
 
-void parse_module_parameters(reprompib_dictionary_t *dict, const char *options) {
+void parse_module_parameters(pgmpi_dictionary_t *dict, const char *options) {
   char* token;
   char* workargv;
 
@@ -137,7 +137,7 @@ void parse_module_parameters(reprompib_dictionary_t *dict, const char *options) 
       val = strtok(NULL, ":");
     }
     if( key != NULL && val != NULL ) {
-      reprompib_add_element_to_dict(dict, key, val);
+      pgmpitune_add_element_to_dict(dict, key, val);
     } else {
       ZF_LOGW("token %s invalid", token);
     }
@@ -147,7 +147,7 @@ void parse_module_parameters(reprompib_dictionary_t *dict, const char *options) 
 }
 
 int pgmpi_parse_module_params_get_cid(const module_alg_choices_t *module_choices, const char *argv) {
-  reprompib_dictionary_t hashmap;
+  pgmpi_dictionary_t hashmap;
   int alg_id = 0;
   char *alg_name = NULL;
 
@@ -157,11 +157,11 @@ int pgmpi_parse_module_params_get_cid(const module_alg_choices_t *module_choices
     return alg_id;
   }
 
-  reprompib_init_dictionary(&hashmap);
+  pgmpitune_init_dictionary(&hashmap);
   parse_module_parameters(&hashmap, argv);
 
-  if( reprompib_dict_has_key(&hashmap, "alg") ) {
-    alg_name = reprompib_get_value_from_dict(&hashmap, "alg");
+  if( pgmpitune_dict_has_key(&hashmap, "alg") ) {
+    alg_name = pgmpitune_get_value_from_dict(&hashmap, "alg");
     if( alg_name != NULL ) {
       alg_id = pgmpi_modules_get_algid_by_algname(module_choices, alg_name);
       if( alg_id < 0 ) {
@@ -173,7 +173,7 @@ int pgmpi_parse_module_params_get_cid(const module_alg_choices_t *module_choices
       ZF_LOGW("alg_name from dict is NULL");
     }
   }
-  reprompib_cleanup_dictionary(&hashmap);
+  pgmpitune_cleanup_dictionary(&hashmap);
 
   return alg_id;
 }

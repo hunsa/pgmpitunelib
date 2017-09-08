@@ -51,13 +51,13 @@ pgmpi_context_hook_t context = {
 
 static void fill_lookup_table() {
   char *prof_path;
-  reprompib_dictionary_t *hashmap;
+  pgmpi_dictionary_t *hashmap;
 
   hashmap = pgmpi_context_get_cli_dict();
 
   pgmpi_allocate_replacement_table(&lookup);
 
-  prof_path = reprompib_get_value_from_dict(hashmap, "profile_path");
+  prof_path = pgmpitune_get_value_from_dict(hashmap, "profile_path");
 
   if( prof_path == NULL ) {
     ZF_LOGV("no profile path found in CLI, trying env");

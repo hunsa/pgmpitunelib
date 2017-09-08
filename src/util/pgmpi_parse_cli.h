@@ -10,9 +10,9 @@
 
 #include "util/keyvalue_store.h"
 
-void parse_cli_arguments(reprompib_dictionary_t *dict, int *argc, char ***argv);
+void parse_cli_arguments(pgmpi_dictionary_t *dict, int *argc, char ***argv);
 
-void parse_module_parameters(reprompib_dictionary_t *dict, const char *options);
+void parse_module_parameters(pgmpi_dictionary_t *dict, const char *options);
 
 /*!
   \param module_choices pointer to algorithmic choice of a specific module

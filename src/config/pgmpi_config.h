@@ -13,7 +13,7 @@
 #include "util/keyvalue_store.h"
 
 typedef struct {
-  reprompib_dictionary_t* config_dict;
+  pgmpi_dictionary_t* config_dict;
 } pgmpi_config_t;
 
 

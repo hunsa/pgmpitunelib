@@ -21,43 +21,43 @@
 </license>
 */
 
-#ifndef REPROMPIB_KEYVALUE_STORE_H_
-#define REPROMPIB_KEYVALUE_STORE_H_
+#ifndef PGMPI_KEYVALUE_STORE_H_
+#define PGMPI_KEYVALUE_STORE_H_
 
 #include <stdio.h>
 
-typedef struct reprompib_params_keyval {
+typedef struct pgmpitune_params_keyval {
     char* key;
     char* value;
-} reprompib_dict_keyval_t;
+} pgmpi_dict_keyval_t;
 
 
-typedef struct reprompib_dictionary {
-    reprompib_dict_keyval_t* data;
+typedef struct pgmpitune_dictionary {
+    pgmpi_dict_keyval_t* data;
     int n_elems;
     int size;
-} reprompib_dictionary_t;
+} pgmpi_dictionary_t;
 
 typedef enum {
     DICT_SUCCESS = 0,
     DICT_KEY_ERROR,
     DICT_ERROR_NULL_KEY,
     DICT_ERROR_NULL_VALUE
-} reprompib_dict_error_t;
+} pgmpitune_dict_error_t;
 
 
 
-void reprompib_init_dictionary(reprompib_dictionary_t* dict);
-void reprompib_cleanup_dictionary(reprompib_dictionary_t* dict);
-reprompib_dict_error_t reprompib_add_element_to_dict(reprompib_dictionary_t* dict, const char* key, const char* val);
-char* reprompib_get_value_from_dict(const reprompib_dictionary_t* dict, const char* key);
-reprompib_dict_error_t reprompib_remove_element_from_dict(reprompib_dictionary_t* dict, const char* key);
-reprompib_dict_error_t reprompib_get_keys_from_dict(const reprompib_dictionary_t* dict, char ***keys, int *length);
-int reprompib_dict_is_empty(const reprompib_dictionary_t* dict);
-int reprompib_dict_get_length(const reprompib_dictionary_t* dict);
-int reprompib_dict_has_key(const reprompib_dictionary_t* dict, const char *key);
+void pgmpitune_init_dictionary(pgmpi_dictionary_t* dict);
+void pgmpitune_cleanup_dictionary(pgmpi_dictionary_t* dict);
+pgmpitune_dict_error_t pgmpitune_add_element_to_dict(pgmpi_dictionary_t* dict, const char* key, const char* val);
+char* pgmpitune_get_value_from_dict(const pgmpi_dictionary_t* dict, const char* key);
+pgmpitune_dict_error_t pgmpitune_remove_element_from_dict(pgmpi_dictionary_t* dict, const char* key);
+pgmpitune_dict_error_t pgmpitune_get_keys_from_dict(const pgmpi_dictionary_t* dict, char ***keys, int *length);
+int pgmpitune_dict_is_empty(const pgmpi_dictionary_t* dict);
+int pgmpitune_dict_get_length(const pgmpi_dictionary_t* dict);
+int pgmpitune_dict_has_key(const pgmpi_dictionary_t* dict, const char *key);
 
-void reprompib_print_dictionary(const reprompib_dictionary_t* dict, FILE* f);
+void pgmpitune_print_dictionary(const pgmpi_dictionary_t* dict, FILE* f);
 
 
-#endif /* REPROMPIB_KEYVALUE_STORE_H_ */
+#endif /* PGMPI_KEYVALUE_STORE_H_ */
