@@ -163,15 +163,14 @@ int MPI_Allreduce_as_Reduce_scatter_Allgatherv(const void *sendbuf, void *recvbu
     MPI_Datatype datatype, MPI_Op op, MPI_Comm comm) {
   int n;
   int nchunks;
-  int i, chunk_id;
+  int i;
   int *recvcounts;
   int *displs;
-  int sendcount;
   int rank, size;
   MPI_Aint type_extent, lb;
-  size_t fake_buf_size, fake_int_buf_size;
+  size_t fake_int_buf_size;
   int *aux_int_buf1, *aux_int_buf2;
-  void *aux_buf1;
+  void *aux_buf;
   int buf_status = BUF_NO_ERROR;
 
   MPI_Comm_rank(comm, &rank);
@@ -197,26 +196,20 @@ int MPI_Allreduce_as_Reduce_scatter_Allgatherv(const void *sendbuf, void *recvbu
     return MPI_ERR_NO_MEM;
   }
 
-  // int buffers are allocated - now try to obtain data buffer
-
   nchunks = n / MIN_SCATTER_CHUNK_SIZE;   // handle the remainder separately
-
   recvcounts = aux_int_buf1;
-  for (i = 0; i < size; i++) {
-    recvcounts[i] = 0;
-  }
 
   // assign chunks to processes (round robin) - at least MIN_SCATTER_CHUNK_SIZE elements per process
-  i = 0;
-  for (chunk_id = 0; chunk_id < nchunks; chunk_id++) {
-    recvcounts[i] += MIN_SCATTER_CHUNK_SIZE;
-    i = (i + 1) % size;
+  for (i = 0; i < size; i++) {
+    recvcounts[i] = MIN_SCATTER_CHUNK_SIZE * (nchunks/size);
+
+    if (i < nchunks % size) {
+      recvcounts[i] += MIN_SCATTER_CHUNK_SIZE;
+    } else if (i == nchunks % size ) { // last chunk can be smaller than MIN_SCATTER_CHUNK_SIZE
+      recvcounts[i] += n % MIN_SCATTER_CHUNK_SIZE;
+    }
   }
 
-  // last chunk can be smaller than chunk_size
-  if (n % MIN_SCATTER_CHUNK_SIZE != 0) {
-    recvcounts[i] += n % MIN_SCATTER_CHUNK_SIZE;
-  }
   ZF_LOGV("nchunks=%d count=%d i=%d", nchunks, n, i);
 
   if (rank == mockup_root_rank) {
@@ -225,26 +218,21 @@ int MPI_Allreduce_as_Reduce_scatter_Allgatherv(const void *sendbuf, void *recvbu
     }
   }
 
-  fake_buf_size = recvcounts[0] * type_extent;   // max recv buffer size per process
-                                                 // (to make sure all processes obtain the same buf_status)
-  ZF_LOGV("fake_buf_size: %zu", fake_buf_size);
-  buf_status = grab_msg_buffer_1(fake_buf_size, &aux_buf1);
-  ZF_LOGV("fake buffer 1 points to %p", aux_buf1);
-  if (buf_status != BUF_NO_ERROR) {
-    return MPI_ERR_NO_MEM;
-  }
-
-  // aux_buf1 needs recvcounts[rank]  elements on each process
-  PGMPI(MPI_Reduce_scatter(sendbuf, aux_buf1, recvcounts, datatype, op, comm));
-
   displs = aux_int_buf2;
   displs[0] = 0;
   for (i = 1; i < size; i++) {
     displs[i] = displs[i - 1] + recvcounts[i - 1];
   }
-  sendcount = recvcounts[rank];
 
-  PGMPI(MPI_Allgatherv(aux_buf1, sendcount, datatype, recvbuf, recvcounts, displs, datatype, comm));
+  // set the pointer where the scatter results will be saved for the current rank within the final receive buffer
+  if (recvcounts[rank] > 0) {
+    aux_buf = (char*)(recvbuf) + displs[rank] * type_extent;
+  } else {  // point at the beginning of the receive buffer when there is nothing to receive
+     aux_buf = recvbuf;
+  }
+
+  PGMPI(MPI_Reduce_scatter(sendbuf, aux_buf, recvcounts, datatype, op, comm));
+  PGMPI(MPI_Allgatherv(MPI_IN_PLACE, 0, datatype, recvbuf, recvcounts, displs, datatype, comm));
 
 
   release_msg_buffers();
