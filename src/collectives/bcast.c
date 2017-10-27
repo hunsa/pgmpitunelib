@@ -65,29 +65,20 @@ void deregister_module_bcast(module_t *module) {
 }
 
 int MPI_Bcast_as_Allgatherv(void* buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm) {
-  int n;
   int i;
   int *recvcounts;
   int *displs;
-  int sendcount;
   int rank, size;
-  void *recvbuf;
-  MPI_Aint type_extent, lb;
-  size_t fake_buf_size, fake_int_buf_size;
+  size_t fake_int_buf_size;
   int *aux_int_buf1, *aux_int_buf2;
-  void *aux_buf1;
   int buf_status = BUF_NO_ERROR;
 
   MPI_Comm_rank(comm, &rank);
   MPI_Comm_size(comm, &size);
-  MPI_Type_get_extent(datatype, &lb, &type_extent);
 
   ZF_LOGV("Calling MPI_Bcast_as_Allgatherv");
 
-  // we need one fake data buffer: aux_buf1 with n elements
-  //    and two fake int buffers with size elements: aux_int_buf1, aux_int_buf2
-  n = count;            // buffer size broadcasted to all processes
-
+  // we need two fake int buffers with size elements: aux_int_buf1, aux_int_buf2
   fake_int_buf_size = size * sizeof(int);     // same size for both int buffers
   ZF_LOGV("fake_int_buf_size: %zu", fake_int_buf_size);
   buf_status = grab_int_buffer_1(fake_int_buf_size, &aux_int_buf1);
@@ -101,21 +92,12 @@ int MPI_Bcast_as_Allgatherv(void* buffer, int count, MPI_Datatype datatype, int 
     return MPI_ERR_NO_MEM;
   }
 
-  fake_buf_size = n * type_extent;   // recv buffer size per process
-  ZF_LOGV("fake_buf_size: %zu", fake_buf_size);
-  buf_status = grab_msg_buffer_1(fake_buf_size, &aux_buf1);
-  ZF_LOGV("fake buffer 1 points to %p", aux_buf1);
-  if (buf_status != BUF_NO_ERROR) {
-    return MPI_ERR_NO_MEM;
-  }
-
-  recvbuf = aux_buf1;
   recvcounts = aux_int_buf1;
   displs = aux_int_buf2;
 
   for (i = 0; i < size; i++) {
     if (i == root) {
-      recvcounts[i] = n;
+      recvcounts[i] = count;
       displs[i] = 0;
     } else {
       if (i < root) {
@@ -123,20 +105,13 @@ int MPI_Bcast_as_Allgatherv(void* buffer, int count, MPI_Datatype datatype, int 
         displs[i] = 0;
       } else { // i > root
         recvcounts[i] = 0;
-        displs[i] = n;
+        displs[i] = count;
       }
     }
   }
-  sendcount = recvcounts[rank];
 
-  PGMPI(MPI_Allgatherv(buffer, sendcount, datatype, recvbuf, recvcounts, displs, datatype, comm));
+  PGMPI(MPI_Allgatherv(MPI_IN_PLACE, 0, datatype, buffer, recvcounts, displs, datatype, comm));
 
-  // copy gathered data back to the bcast buffer (not needed on the root process)
-  if (rank != root) {
-    memcpy(buffer, recvbuf, n * type_extent);
-  }
-
-  release_msg_buffers();
   release_int_buffers();
   return MPI_SUCCESS;
 }

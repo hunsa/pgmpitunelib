@@ -179,8 +179,7 @@ int MPI_Allreduce_as_Reduce_scatter_Allgatherv(const void *sendbuf, void *recvbu
 
   ZF_LOGV("Calling MPI_Allreduce_as_Reduce_scatter_Allgatherv");
 
-  // we need one fake data buffer: aux_buf1 with at most ((n * type_extent)/(chunk_size * size) + 1) elements
-  //    and two fake int buffers with size elements: aux_int_buf1, aux_int_buf2
+  // we two fake int buffers with size elements: aux_int_buf1, aux_int_buf2
   n = count;            // buffer size per process
 
   fake_int_buf_size = size * sizeof(int);     // same size for both int buffers
@@ -234,8 +233,6 @@ int MPI_Allreduce_as_Reduce_scatter_Allgatherv(const void *sendbuf, void *recvbu
   PGMPI(MPI_Reduce_scatter(sendbuf, aux_buf, recvcounts, datatype, op, comm));
   PGMPI(MPI_Allgatherv(MPI_IN_PLACE, 0, datatype, recvbuf, recvcounts, displs, datatype, comm));
 
-
-  release_msg_buffers();
   release_int_buffers();
   return MPI_SUCCESS;
 }
