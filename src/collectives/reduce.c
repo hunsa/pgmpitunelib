@@ -176,8 +176,8 @@ int MPI_Reduce_as_Reduce_scatter_block_Gather(const void* sendbuf, void* recvbuf
 int MPI_Reduce_as_Reduce_scatter_Gatherv(const void* sendbuf, void* recvbuf, int count, MPI_Datatype datatype,
     MPI_Op op, int root, MPI_Comm comm) {
   int n;
-  int min_elems_per_proc, nchunks;
-  int i, chunk_id;
+  int nchunks;
+  int i;
   int *recvcounts;
   int *displs;
   int sendcount;
@@ -213,27 +213,21 @@ int MPI_Reduce_as_Reduce_scatter_Gatherv(const void* sendbuf, void* recvbuf, int
 
   // int buffers are allocated - now try to obtain data buffer
 
-  min_elems_per_proc = MIN_SCATTER_CHUNK_SIZE;
-  nchunks = n / min_elems_per_proc;   // handle the remainder separately
-
+  nchunks = n / MIN_SCATTER_CHUNK_SIZE;   // handle the remainder separately
   recvcounts = aux_int_buf1;
-  for (i = 0; i < size; i++) {
-    recvcounts[i] = 0;
-  }
 
   // assign chunks to processes (round robin) - at least MIN_SCATTER_CHUNK_SIZE elements per process
-  i = 0;
-  for (chunk_id = 0; chunk_id < nchunks; chunk_id++) {
-    recvcounts[i] += min_elems_per_proc;
-    i = (i + 1) % size;
+  for (i = 0; i < size; i++) {
+    recvcounts[i] = MIN_SCATTER_CHUNK_SIZE * (nchunks/size);
+
+    if (i < nchunks % size) {
+      recvcounts[i] += MIN_SCATTER_CHUNK_SIZE;
+    } else if (i == nchunks % size ) { // last chunk can be smaller than MIN_SCATTER_CHUNK_SIZE
+      recvcounts[i] += n % MIN_SCATTER_CHUNK_SIZE;
+    }
   }
 
-  // last chunk can be smaller than chunk_size
-  if (n % min_elems_per_proc != 0) {
-    recvcounts[i] += n % min_elems_per_proc;
-  }
   ZF_LOGV("nchunks=%d count=%d i=%d", nchunks, n, i);
-
   if (rank == root) {
     for (i = 0; i < size; i++) {
       ZF_LOGV("recvcounts[%d]=%d", i, recvcounts[i]);
