@@ -23,13 +23,13 @@ SET(MY_COMPILE_FLAGS "")
 
 option(OPTION_ENABLE_LOGGING   "Enable logging" off)
 option(OPTION_ENABLE_DEBUGGING "Enable debugging" off)
+option(OPTION_ENABLE_TESTS "Enable tests" off)
 option(OPTION_ENABLE_ALGID_STORING "Enable tracing algorithmic IDs" on)
 set(OPTION_BUFFER_ALIGNMENT "" CACHE STRING "Alignment to use for buffer allocation [default: no alignment (allocation with calloc)]")
 
 if(OPTION_ENABLE_LOGGING)
     SET(MY_COMPILE_FLAGS "${MY_COMPILE_FLAGS} -DUSE_LOGGING")
 endif()
-
 
 if(OPTION_ENABLE_DEBUGGING)
     SET(MY_COMPILE_FLAGS "${MY_COMPILE_FLAGS} -g")
@@ -94,28 +94,28 @@ ${SRC_DIR}/pgmpi_info.c
 )
 TARGET_LINK_LIBRARIES(pgmpi_info pgmpicli)
 
-add_executable(test1
-${TEST_DIR}/libtest/test1.c
-)
-TARGET_LINK_LIBRARIES(test1 pgmpicli)
+if(OPTION_ENABLE_TESTS)
+    add_executable(test1
+		${TEST_DIR}/libtest/test1.c
+	)
+	TARGET_LINK_LIBRARIES(test1 pgmpicli)
 
-add_executable(test2
-${TEST_DIR}/libtest/test1.c
-)
-TARGET_LINK_LIBRARIES(test2 pgmpituned)
+	add_executable(test2
+		${TEST_DIR}/libtest/test1.c
+	)
+	TARGET_LINK_LIBRARIES(test2 pgmpituned)
+	
+	add_executable(maptest1
+		${TEST_DIR}/maptest/maptest1.c
+	)
+	TARGET_LINK_LIBRARIES(maptest1 pgmpituned)
 
-add_executable(maptest1
-${TEST_DIR}/maptest/maptest1.c
-)
-TARGET_LINK_LIBRARIES(maptest1 pgmpituned)
-
-
-
-add_executable(testcoll
-${TEST_DIR}/colltest/tests.c
-${TEST_DIR}/colltest/test_collectives.c
-)
-TARGET_LINK_LIBRARIES(testcoll pgmpicli)
+	add_executable(testcoll
+		${TEST_DIR}/colltest/tests.c
+		${TEST_DIR}/colltest/test_collectives.c
+	)
+	TARGET_LINK_LIBRARIES(testcoll pgmpicli)
+endif()
 
 
 
