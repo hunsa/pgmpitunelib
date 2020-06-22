@@ -45,14 +45,24 @@ endif()
 
 set(PGMPI_COLL_FILES
 ${SRC_DIR}/collectives/allgather.c
+${SRC_DIR}/collectives/allgather_impl.c
 ${SRC_DIR}/collectives/allreduce.c
+${SRC_DIR}/collectives/allreduce_impl.c
 ${SRC_DIR}/collectives/alltoall.c
+${SRC_DIR}/collectives/alltoall_impl.c
 ${SRC_DIR}/collectives/bcast.c
+${SRC_DIR}/collectives/bcast_impl.c
 ${SRC_DIR}/collectives/gather.c
+${SRC_DIR}/collectives/gather_impl.c
 ${SRC_DIR}/collectives/reduce.c
+${SRC_DIR}/collectives/reduce_impl.c
 ${SRC_DIR}/collectives/reduce_scatter_block.c
+${SRC_DIR}/collectives/reduce_scatter_block_impl.c
 ${SRC_DIR}/collectives/scan.c
+${SRC_DIR}/collectives/scan_impl.c
 ${SRC_DIR}/collectives/scatter.c
+${SRC_DIR}/collectives/scatter_impl.c
+${SRC_DIR}/collectives/tuw_lanecoll.c
 )
 
 set(PGMPI_LIB_FILES

@@ -35,6 +35,7 @@
 #include "pgmpi_algid_store.h"
 #include "collectives/collective_modules.h"
 #include "util/pgmpi_parse_cli.h"
+#include "all_guideline_collectives.h"
 
 /********************************/
 
@@ -45,15 +46,22 @@ static void set_algid(const int algid);
 
 enum mockups {
   SCAN_DEFAULT = 0,
-  SCAN_AS_EXSCAN_REDUCELOCAL = 1
+  SCAN_AS_EXSCAN_REDUCELOCAL = 1,
+  SCAN_AS_SCAN_HIER = 2,
+  SCAN_AS_SCAN_LANE = 3,
 };
 
-static alg_choice_t module_algs[4] = {
+static alg_choice_t module_algs[] = {
     { SCAN_DEFAULT, "default" },
     { SCAN_AS_EXSCAN_REDUCELOCAL, "scan_as_exscan_reducelocal" },
+    { SCAN_AS_SCAN_HIER, "scan_as_scan_hier" },
+    { SCAN_AS_SCAN_LANE, "scan_as_scan_lane" }
 };
 
-static module_alg_choices_t module_choices = { 2, module_algs };
+static module_alg_choices_t module_choices = {
+    sizeof(module_algs)/sizeof(alg_choice_t),
+    module_algs
+};
 
 
 static int alg_id = SCAN_DEFAULT;
@@ -85,25 +93,7 @@ void register_module_scan(module_t *module) {
 void deregister_module_scan(module_t *module) {
 }
 
-int MPI_Scan_as_Exscan_Reduce_local(const void* sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op,
-    MPI_Comm comm) {
-  MPI_Aint lb, type_extent;
-  int rank;
 
-  MPI_Comm_rank(comm, &rank);
-  MPI_Type_get_extent(datatype, &lb, &type_extent);
-
-  ZF_LOGV("Calling MPI_Scan_as_Exscan_Reduce_local");
-
-  PGMPI(MPI_Exscan(sendbuf, recvbuf, count, datatype, op, comm));
-
-  if (rank == 0) {        // recvbuf is not modified by Exscan on process 0 (should be identical to sendbuf)
-    memcpy(recvbuf, sendbuf, count * type_extent);
-  } else {
-    PGMPI(MPI_Reduce_local(sendbuf, recvbuf, count, datatype, op));
-  }
-  return MPI_SUCCESS;
-}
 
 int MPI_Scan(const void* sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm) {
   int ret_status = MPI_SUCCESS;
@@ -121,6 +111,12 @@ int MPI_Scan(const void* sendbuf, void* recvbuf, int count, MPI_Datatype datatyp
   switch (alg_id) {
   case SCAN_AS_EXSCAN_REDUCELOCAL:
     ret_status = MPI_Scan_as_Exscan_Reduce_local(sendbuf, recvbuf, count, datatype, op, comm);
+    break;
+  case SCAN_AS_SCAN_HIER:
+    ret_status = Scan_hier(sendbuf, recvbuf, count, datatype, op, comm);
+    break;
+  case SCAN_AS_SCAN_LANE:
+    ret_status = Scan_lane(sendbuf, recvbuf, count, datatype, op, comm);
     break;
   case SCAN_DEFAULT:
     call_default = 1;
