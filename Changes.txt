@@ -1,0 +1,5 @@
+Version 0.1.0
+- added TUW lane collectives (and hierarchical ones)
+
+Version 0.0.1
+- initial version for HPC Asia 2018 paper

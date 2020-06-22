@@ -1,20 +1,5 @@
-#  -*- mode: org; -*-
 
-#+TITLE:       PGMPITuneLib
-#+AUTHOR:      
-#+EMAIL:       
-
-#+OPTIONS: ^:nil toc:nil <:nil
-
-#+LaTeX_CLASS_OPTIONS: [a4paper]
-#+LaTeX_CLASS_OPTIONS: [11pt]
-
-#+LATEX_HEADER: \usepackage{bibentry}
-#+LATEX_HEADER: \nobibliography*
-#+LATEX_HEADER: \usepackage{listings}
-
-
-* Introduction
+# Introduction
 
 The PGMPITuneLib library is a tool that relies on self-consistent
 performance guidelines to automatically tune the performance of MPI
@@ -37,25 +22,23 @@ More details can be found in:
   Performance Guidelines", HPC Asia 2018
 
 
-* Quick Start
+# Quick Start
 
-** Prerequisites
+## Prerequisites
   - an MPI library 
   - CMake (version >= 2.6)  
 
-** Building the Code
+## Building the Code
 
 The code can be built as follows:
 
-#+BEGIN_EXAMPLE
-  cd ${PGMPITUNELIB_PATH}
-  cmake ./
-  make
-#+END_EXAMPLE
+```
+cd ${PGMPITUNELIB_PATH}
+cmake ./
+make
+```
 
-
-
-* Using PGMPITuneLib 
+# Using PGMPITuneLib 
 
 PGMPITuneLib provides two different libraries:
 1. *PGMPITuneCLI* enables the user to select a specific mock-up
@@ -65,24 +48,24 @@ PGMPITuneLib provides two different libraries:
    applications by redirecting MPI calls to the mock-up implementation
    that achieved the best performance
 
-** PGMPITuneCLI
+# PGMPITuneCLI
 
 The user code has to be linked against the PGMPITuneCLI library and
 then the selected mock-up is transparently used instead of the default
 implementation.
 
-*** Example
+## Example
 - replace calls to MPI_Allgather with a semantically equivalent
   function that uses MPI_Gather followed by an MPI_Bcast to obtain the
   same results
-#+BEGIN_EXAMPLE
+
+```
 mpicc *.c -o mympicode -lpgmpitunecli -lmpi 
 
-mpirun -np 2 ./mympicode --module=allgather:alg=allgather_as_gather_bcast
-#+END_EXAMPLE
+mpirun -np 2 ./mympicode --module=allgather=alg:allgather_as_gather_bcast
+```
 
-
-** PGMPITuneD
+## PGMPITuneD
 
 The user code has to be linked against the PGMPITuneD library.  
 
@@ -95,8 +78,9 @@ A performance profile records the MPI collective name, the number of
 processes for which the tuning was performed, and a list of message
 size ranges for which the function should be replaced with a different
 algorithm.  An example is provided in
-=${PGMPITUNELIB_PATH}/test/perfmodels/models1/p_allgather.prf=.
-#+BEGIN_EXAMPLE
+`${PGMPITUNELIB_PATH}/test/perfmodels/models1/p_allgather.prf`.
+
+```
 # test profile
 #
 MPI_Allgather # collective name
@@ -110,21 +94,20 @@ MPI_Allgather # collective name
 32 32 2
 64 128 1
 1024 2048 3
-#+END_EXAMPLE
+```
+
+### Example 
+- use the provided test profile to tune `MPI_Allgather`
+```
+  mpicc *.c -o mympicode -lpgmpituned -lmpi 
+
+  mpirun -np 2 ./mympicode --ppath=${PGMPITUNELIB_PATH}/test/perfmodels/models1 
+```
 
 
-*** Example 
-- use the provided test profile to tune *MPI_Allgather*
-#+BEGIN_EXAMPLE
-mpicc *.c -o mympicode -lpgmpituned -lmpi 
+## Use a configuration file for memory requirements
 
-mpirun -np 2 ./mympicode --ppath=${PGMPITUNELIB_PATH}/test/perfmodels/models1 
-#+END_EXAMPLE
-
-
-** Use a configuration file for memory requirements
-
-Add the *--config* command-line argument to specify the path to a
+Add the `--config` command-line argument to specify the path to a
 configuration file.  The configuration file should contain a list of
 key-value pairs, one per line, separated by a single space character.
 Comment lines (starting with =#=) are also accepted.
@@ -134,18 +117,18 @@ memory that can be used in the implementation of mock-up functions. If
 a mock-up requires more memory than the limit imposed by the
 configuration file, the default MPI collective will be used instead.
 
-*** Configuration file example
+### Configuration file example
 
-#+BEGIN_EXAMPLE
+```
 # Size limit for the additional data buffers used by mock-up functions
 size_msg_buffer_bytes 100000
 
 # Size limit for the additional counts arrays used by mock-up functions
 size_int_buffer_bytes 10000
-#+END_EXAMPLE
+```
 
 
-** List the mock-up functions implemented for each MPI collective
-#+BEGIN_EXAMPLE
+## List the mock-up functions implemented for each MPI collective
+```
 ${PGMPITUNELIB_PATH}/bin/pgmpi_info 
-#+END_EXAMPLE
+```
