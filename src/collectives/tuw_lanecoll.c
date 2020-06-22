@@ -731,7 +731,7 @@ int Gather_lane(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void 
   return MPI_SUCCESS;
 }
 
-int Reduce_hier(void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, MPI_Op op, int root, MPI_Comm comm) {
+int Reduce_hier(const void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, MPI_Op op, int root, MPI_Comm comm) {
   static MPI_Comm nodecomm = MPI_COMM_NULL;
   static MPI_Comm lanecomm = MPI_COMM_NULL;
 
@@ -771,7 +771,7 @@ int Reduce_hier(void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, 
   return MPI_SUCCESS;
 }
 
-int Reduce_lane(void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, MPI_Op op, int root, MPI_Comm comm) {
+int Reduce_lane(const void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, MPI_Op op, int root, MPI_Comm comm) {
   static MPI_Comm nodecomm = MPI_COMM_NULL;
   static MPI_Comm lanecomm = MPI_COMM_NULL;
 
@@ -802,7 +802,7 @@ int Reduce_lane(void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, 
 
   block = count / nodesize;
 
-  takebuf = (sendbuf == MPI_IN_PLACE) ? recvbuf : sendbuf;
+  takebuf = (sendbuf == MPI_IN_PLACE) ? recvbuf : (void*)sendbuf;
 
   if (count % nodesize == 0) {
     counts[noderank] = block;
@@ -843,7 +843,7 @@ int Reduce_lane(void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, 
   return MPI_SUCCESS;
 }
 
-int Reduce_scatter_block_hier(void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm) {
+int Reduce_scatter_block_hier(const void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm) {
   static MPI_Comm nodecomm = MPI_COMM_NULL;
   static MPI_Comm lanecomm = MPI_COMM_NULL;
 
@@ -884,7 +884,7 @@ int Reduce_scatter_block_hier(void *sendbuf, void *recvbuf, int count, MPI_Datat
   return MPI_SUCCESS;
 }
 
-int Reduce_scatter_block_lane(void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm) {
+int Reduce_scatter_block_lane(const void *sendbuf, void *recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm) {
   static MPI_Comm nodecomm = MPI_COMM_NULL;
   static MPI_Comm lanecomm = MPI_COMM_NULL;
 
