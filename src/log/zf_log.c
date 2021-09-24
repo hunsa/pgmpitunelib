@@ -323,6 +323,7 @@
 #endif
 #if defined(__MACH__) || defined(_AIX)
 	#include <pthread.h>
+  int pthread_mach_thread_np(pthread_t); // fix annoying 'implicit declaration' warning
 #endif
 
 #define INLINE _ZF_LOG_INLINE
