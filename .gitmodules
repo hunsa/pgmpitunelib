@@ -1,0 +1,3 @@
+[submodule "mpi-lane-collectives"]
+	path = mpi-lane-collectives
+	url = https://github.com/parlab-tuwien/mpi-lane-collectives.git

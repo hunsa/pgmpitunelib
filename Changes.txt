@@ -1,3 +1,7 @@
+Version 0.2.0
+- removed TUW lane collectives from tree
+- added TUW lane collectives as a submodule
+
 Version 0.1.0
 - added TUW lane collectives (and hierarchical ones)
 

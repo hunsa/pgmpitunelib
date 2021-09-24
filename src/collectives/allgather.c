@@ -51,10 +51,13 @@ enum mockups {
   ALLGATHER_AS_ALLGATHERV = 1,
   ALLGATHER_AS_ALLREDUCE = 2,
   ALLGATHER_AS_ALLTOALL  = 3,
-  ALLGATHER_AS_GATHERBCAST = 4,
+  ALLGATHER_AS_GATHERBCAST = 4
+#ifdef HAVE_LANE_COLL
+  ,
   ALLGATHER_AS_ALLGATHER_LANE = 5,
   ALLGATHER_AS_ALLGATHER_LANE_ZERO = 6,
   ALLGATHER_AS_ALLGATHER_HIER = 7
+#endif
 };
 
 static alg_choice_t module_algs[] = {
@@ -62,10 +65,13 @@ static alg_choice_t module_algs[] = {
     { ALLGATHER_AS_ALLGATHERV, "allgather_as_allgatherv" },
     { ALLGATHER_AS_ALLREDUCE, "allgather_as_allreduce" },
     { ALLGATHER_AS_ALLTOALL, "allgather_as_alltoall" },
-    { ALLGATHER_AS_GATHERBCAST, "allgather_as_gather_bcast" },
+    { ALLGATHER_AS_GATHERBCAST, "allgather_as_gather_bcast" }
+#ifdef HAVE_LANE_COLL
+    ,
     { ALLGATHER_AS_ALLGATHER_LANE, "allgather_as_allgather_lane" },
     { ALLGATHER_AS_ALLGATHER_LANE_ZERO, "allgather_as_allgather_lane_zero" },
     { ALLGATHER_AS_ALLGATHER_HIER, "allgather_as_allgather_hier" }
+#endif
 };
 
 static module_alg_choices_t module_choices = {
@@ -135,6 +141,7 @@ int MPI_Allgather(const void *sendbuf, int sendcount, MPI_Datatype sendtype,
     ret_status = MPI_Allgather_as_GatherBcast(sendbuf, sendcount, sendtype, recvbuf,
         recvcount, recvtype, comm);
     break;
+#ifdef HAVE_LANE_COLL
   case ALLGATHER_AS_ALLGATHER_LANE:
     ret_status = Allgather_lane(sendbuf, sendcount, sendtype, recvbuf,
         recvcount, recvtype, comm);
@@ -147,7 +154,8 @@ int MPI_Allgather(const void *sendbuf, int sendcount, MPI_Datatype sendtype,
     ret_status = Allgather_hier(sendbuf, sendcount, sendtype, recvbuf,
         recvcount, recvtype, comm);
     break;
-  case ALLGATHER_DEFAULT:
+#endif
+    case ALLGATHER_DEFAULT:
     call_default = 1;
     break;
   default:   // call the original function

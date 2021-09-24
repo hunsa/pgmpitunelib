@@ -46,16 +46,22 @@ static void set_algid(const int algid);
 
 enum mockups {
   SCAN_DEFAULT = 0,
-  SCAN_AS_EXSCAN_REDUCELOCAL = 1,
+  SCAN_AS_EXSCAN_REDUCELOCAL = 1
+#ifdef HAVE_LANE_COLL
+  ,
   SCAN_AS_SCAN_HIER = 2,
-  SCAN_AS_SCAN_LANE = 3,
+  SCAN_AS_SCAN_LANE = 3
+#endif
 };
 
 static alg_choice_t module_algs[] = {
     { SCAN_DEFAULT, "default" },
-    { SCAN_AS_EXSCAN_REDUCELOCAL, "scan_as_exscan_reducelocal" },
+    { SCAN_AS_EXSCAN_REDUCELOCAL, "scan_as_exscan_reducelocal" }
+#ifdef HAVE_LANE_COLL
+    ,
     { SCAN_AS_SCAN_HIER, "scan_as_scan_hier" },
     { SCAN_AS_SCAN_LANE, "scan_as_scan_lane" }
+#endif
 };
 
 static module_alg_choices_t module_choices = {
@@ -112,12 +118,14 @@ int MPI_Scan(const void* sendbuf, void* recvbuf, int count, MPI_Datatype datatyp
   case SCAN_AS_EXSCAN_REDUCELOCAL:
     ret_status = MPI_Scan_as_Exscan_Reduce_local(sendbuf, recvbuf, count, datatype, op, comm);
     break;
+#ifdef HAVE_LANE_COLL
   case SCAN_AS_SCAN_HIER:
     ret_status = Scan_hier(sendbuf, recvbuf, count, datatype, op, comm);
     break;
   case SCAN_AS_SCAN_LANE:
     ret_status = Scan_lane(sendbuf, recvbuf, count, datatype, op, comm);
     break;
+#endif
   case SCAN_DEFAULT:
     call_default = 1;
     break;

@@ -49,18 +49,24 @@ enum mockups {
   ALLREDUCE_DEFAULT = 0,
   ALLREDUCE_AS_REDUCE_BCAST = 1,
   ALLREDUCE_AS_REDUCESCATTERBLOCK_ALLGATHER = 2,
-  ALLREDUCE_AS_REDUCESCATTER_ALLGATHERV = 3,
+  ALLREDUCE_AS_REDUCESCATTER_ALLGATHERV = 3
+#ifdef HAVE_LANE_COLL
+  ,
   ALLREDUCE_AS_ALLREDUCE_LANE = 4,
   ALLREDUCE_AS_ALLREDUCE_HIER = 5
+#endif
 };
 
 static alg_choice_t module_algs[] = {
     { ALLREDUCE_DEFAULT, "default" },
     { ALLREDUCE_AS_REDUCE_BCAST, "allreduce_as_reduce_bcast" },
     { ALLREDUCE_AS_REDUCESCATTERBLOCK_ALLGATHER, "allreduce_as_reducescatterblock_allgather" },
-    { ALLREDUCE_AS_REDUCESCATTER_ALLGATHERV, "allreduce_as_reducescatter_allgatherv" },
+    { ALLREDUCE_AS_REDUCESCATTER_ALLGATHERV, "allreduce_as_reducescatter_allgatherv" }
+#ifdef HAVE_LANE_COLL
+,
     { ALLREDUCE_AS_ALLREDUCE_LANE, "allreduce_as_allreduce_lane" },
     { ALLREDUCE_AS_ALLREDUCE_HIER, "allreduce_as_allreduce_hier" }
+#endif
 };
 
 static module_alg_choices_t module_choices = {
@@ -123,12 +129,14 @@ int MPI_Allreduce(const void *sendbuf, void *recvbuf, int count,
   case ALLREDUCE_AS_REDUCESCATTER_ALLGATHERV:
     ret_status = MPI_Allreduce_as_Reduce_scatter_Allgatherv(sendbuf, recvbuf, count, datatype, op, comm);
     break;
+#ifdef HAVE_LANE_COLL
   case ALLREDUCE_AS_ALLREDUCE_LANE:
     ret_status = Allreduce_lane(sendbuf, recvbuf, count, datatype, op, comm);
     break;
   case ALLREDUCE_AS_ALLREDUCE_HIER:
     ret_status = Allreduce_hier(sendbuf, recvbuf, count, datatype, op, comm);
     break;
+#endif
   case ALLREDUCE_DEFAULT:
     call_default = 1;
     break;

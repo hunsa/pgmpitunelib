@@ -12,6 +12,8 @@
 #include "scan_impl.h"
 #include "scatter_impl.h"
 
+#ifdef HAVE_LANE_COLL
 #include "tuw_lanecoll.h"
+#endif
 
 #endif /* SRC_COLLECTIVES_ALL_GUIDELINE_COLLECTIVES_H_ */

@@ -46,18 +46,24 @@ static void set_algid(const int algid);
 enum mockups {
   BCAST_DEFAULT = 0,
   BCAST_AS_ALLGATHERV = 1,
-  BCAST_AS_SCATTER_ALLGATHER = 2,
+  BCAST_AS_SCATTER_ALLGATHER = 2
+#ifdef HAVE_LANE_COLL
+  ,
   BCAST_AS_BCAST_LANE = 3,
   BCAST_AS_BCAST_HIER = 4
+#endif
 };
 
 
 static alg_choice_t module_algs[] = {
     { BCAST_DEFAULT, "default" },
     { BCAST_AS_ALLGATHERV, "bcast_as_allgatherv" },
-    { BCAST_AS_SCATTER_ALLGATHER, "bcast_as_scatter_allgather" },
+    { BCAST_AS_SCATTER_ALLGATHER, "bcast_as_scatter_allgather" }
+#ifdef HAVE_LANE_COLL
+    ,
     { BCAST_AS_BCAST_LANE, "bcast_as_bcast_lane" },
     { BCAST_AS_BCAST_HIER, "bcast_as_bcast_hier" }
+#endif
 };
 
 static module_alg_choices_t module_choices = {
@@ -115,12 +121,14 @@ int MPI_Bcast(void* buffer, int count, MPI_Datatype datatype, int root, MPI_Comm
   case BCAST_AS_SCATTER_ALLGATHER:
     ret_status = MPI_Bcast_as_Scatter_Allgather(buffer, count, datatype, root, comm);
     break;
+#ifdef HAVE_LANE_COLL
   case BCAST_AS_BCAST_LANE:
     ret_status = Bcast_lane(buffer, count, datatype, root, comm);
     break;
   case BCAST_AS_BCAST_HIER:
     ret_status = Bcast_hier(buffer, count, datatype, root, comm);
     break;
+#endif
   case BCAST_DEFAULT:
     call_default = 1;
     break;

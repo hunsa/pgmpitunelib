@@ -18,8 +18,7 @@ implementations, if the corresponding performance guideline is
 violated.
 
 More details can be found in: 
-- S. Hunold, A. Carpen-Amarie, "Autotuning MPI Collectives using
-  Performance Guidelines", HPC Asia 2018
+- Sascha Hunold and Alexandra Carpen-Amarie. 2018. Autotuning MPI Collectives using Performance Guidelines. In Proceedings of the International Conference on High Performance Computing in Asia-Pacific Region (HPC Asia 2018). Association for Computing Machinery, New York, NY, USA, 64–74. DOI: https://doi.org/10.1145/3149457.3149461
 
 
 # Quick Start

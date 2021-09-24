@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.0)
 
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules/")
@@ -18,13 +18,14 @@ set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR} "include")
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR} "src")
 
-
 SET(MY_COMPILE_FLAGS "")
 
 option(OPTION_ENABLE_LOGGING   "Enable logging" off)
 option(OPTION_ENABLE_DEBUGGING "Enable debugging" off)
 option(OPTION_ENABLE_TESTS "Enable tests" off)
 option(OPTION_ENABLE_ALGID_STORING "Enable tracing algorithmic IDs" on)
+option(OPTION_ENABLE_LANE_COLL "Enable lane collectives if available" on)
+
 set(OPTION_BUFFER_ALIGNMENT "" CACHE STRING "Alignment to use for buffer allocation [default: no alignment (allocation with calloc)]")
 
 if(OPTION_ENABLE_LOGGING)
@@ -40,6 +41,15 @@ if(OPTION_ENABLE_ALGID_STORING)
 endif()
 if(OPTION_BUFFER_ALIGNMENT)
     SET(MY_COMPILE_FLAGS "${MY_COMPILE_FLAGS} -DOPTION_BUFFER_ALIGNMENT=${OPTION_BUFFER_ALIGNMENT}")
+endif()
+
+if(OPTION_ENABLE_LANE_COLL)
+	SET(HAVE_LANE_COLL 0) # default
+	if(EXISTS "${CMAKE_SOURCE_DIR}/mpi-lane-collectives/src/tuw_lanecoll.h")
+		SET(MY_COMPILE_FLAGS "${MY_COMPILE_FLAGS} -DHAVE_LANE_COLL")
+		SET(LANE_COLL_ROOT ${CMAKE_SOURCE_DIR}/mpi-lane-collectives)
+		SET(HAVE_LANE_COLL 1)
+	endif()
 endif()
 
 
@@ -62,8 +72,20 @@ ${SRC_DIR}/collectives/scan.c
 ${SRC_DIR}/collectives/scan_impl.c
 ${SRC_DIR}/collectives/scatter.c
 ${SRC_DIR}/collectives/scatter_impl.c
-${SRC_DIR}/collectives/tuw_lanecoll.c
 )
+
+if( HAVE_LANE_COLL )
+	message(STATUS "Lane collectives available and enabled")
+
+	set(PGMPI_COLL_FILES
+			${PGMPI_COLL_FILES}
+			${LANE_COLL_ROOT}/src/tuw_lanecoll.c)
+
+	INCLUDE_DIRECTORIES("${LANE_COLL_ROOT}/src")
+else()
+	message(STATUS "Lane collectives unavailable")
+endif()
+
 
 set(PGMPI_LIB_FILES
 ${SRC_DIR}/pgmpi_algid_store.c
@@ -94,10 +116,11 @@ ${SRC_DIR}/tuning/pgmpi_profile_reader.c
 ${SRC_DIR}/pgmpi_mpihook_tuned.c
 )
 
+SET_TARGET_PROPERTIES(pgmpicli PROPERTIES COMPILE_FLAGS "${MY_COMPILE_FLAGS} -DUSE_PMPI")
+SET_TARGET_PROPERTIES(pgmpicli PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib")
 
-SET_TARGET_PROPERTIES(pgmpicli   PROPERTIES COMPILE_FLAGS "${MY_COMPILE_FLAGS} -DUSE_PMPI")
 SET_TARGET_PROPERTIES(pgmpituned PROPERTIES COMPILE_FLAGS "${MY_COMPILE_FLAGS}")
-
+SET_TARGET_PROPERTIES(pgmpituned PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib")
 
 add_executable(pgmpi_info
 ${SRC_DIR}/pgmpi_info.c
@@ -130,7 +153,7 @@ endif()
 
 
 set(CPACK_PACKAGE_VERSION_MAJOR "0")
-set(CPACK_PACKAGE_VERSION_MINOR "1")
+set(CPACK_PACKAGE_VERSION_MINOR "2")
 set(CPACK_PACKAGE_VERSION_PATCH "0")
 set(CPACK_SOURCE_GENERATOR "TBZ2")
 

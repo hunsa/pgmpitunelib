@@ -47,14 +47,20 @@ static void set_algid(const int algid);
 
 enum mockups {
   ALLTOALL_DEFAULT = 0,
-  ALLTOALL_AS_ALLTOALLV = 1,
+  ALLTOALL_AS_ALLTOALLV = 1
+#ifdef HAVE_LANE_COLL
+  ,
   ALLTOALL_AS_ALLTOALL_LANE = 2
+#endif
 };
 
 static alg_choice_t module_algs[] = {
     { ALLTOALL_DEFAULT, "default" },
-    { ALLTOALL_AS_ALLTOALLV, "alltoall_as_alltoallv" },
+    { ALLTOALL_AS_ALLTOALLV, "alltoall_as_alltoallv" }
+#ifdef HAVE_LANE_COLL
+    ,
     { ALLTOALL_AS_ALLTOALL_LANE, "alltoall_as_alltoall_lane" }
+#endif
 };
 
 static module_alg_choices_t module_choices = {
@@ -109,9 +115,11 @@ int MPI_Alltoall(const void* sendbuf, int sendcount, MPI_Datatype sendtype, void
   case ALLTOALL_AS_ALLTOALLV:
     ret_status = MPI_Alltoall_as_Alltoallv(sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, comm);
     break;
+#ifdef HAVE_LANE_COLL
   case ALLTOALL_AS_ALLTOALL_LANE:
     ret_status = Alltoall_lane(sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, comm);
     break;
+#endif
   case ALLTOALL_DEFAULT:
     call_default = 1;
     break;

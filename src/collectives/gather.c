@@ -48,18 +48,24 @@ enum mockups {
   GATHER_DEFAULT = 0,
   GATHER_AS_ALLGATHER = 1,
   GATHER_AS_GATHERV = 2,
-  GATHER_AS_REDUCE = 3,
+  GATHER_AS_REDUCE = 3
+#ifdef HAVE_LANE_COLL
+  ,
   GATHER_AS_GATHER_HIER = 4,
   GATHER_AS_GATHER_LANE = 5
+#endif
 };
 
 static alg_choice_t module_algs[] = {
     { GATHER_DEFAULT, "default" },
     { GATHER_AS_ALLGATHER, "gather_as_allgather" },
     { GATHER_AS_GATHERV, "gather_as_gatherv" },
-    { GATHER_AS_REDUCE, "gather_as_reduce" },
+    { GATHER_AS_REDUCE, "gather_as_reduce" }
+#ifdef HAVE_LANE_COLL
+    ,
     { GATHER_AS_GATHER_HIER, "gather_as_gather_hier" },
     { GATHER_AS_GATHER_LANE, "gather_as_gather_lane" }
+#endif
 };
 
 static module_alg_choices_t module_choices = {
@@ -122,12 +128,14 @@ int MPI_Gather(const void* sendbuf, int sendcount, MPI_Datatype sendtype,
   case GATHER_AS_REDUCE:
     ret_status = MPI_Gather_as_Reduce(sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, root, comm);
     break;
+#ifdef HAVE_LANE_COLL
   case GATHER_AS_GATHER_HIER:
     ret_status = Gather_hier(sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, root, comm);
     break;
   case GATHER_AS_GATHER_LANE:
     ret_status = Gather_lane(sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, root, comm);
     break;
+#endif
   case GATHER_DEFAULT:
     call_default = 1;
     break;

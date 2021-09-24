@@ -48,18 +48,24 @@ enum mockups {
   REDUCESCATTERBLOCK_DEFAULT = 0,
   REDUCESCATTERBLOCK_AS_REDUCE_SCATTER = 1,
   REDUCESCATTERBLOCK_AS_REDUCESCATTER = 2,
-  REDUCESCATTERBLOCK_AS_ALLREDUCE = 3,
+  REDUCESCATTERBLOCK_AS_ALLREDUCE = 3
+#ifdef HAVE_LANE_COLL
+  ,
   REDUCESCATTERBLOCK_AS_REDUCESCATTERBLOCK_HIER = 4,
-  REDUCESCATTERBLOCK_AS_REDUCESCATTERBLOCK_LANE = 5,
+  REDUCESCATTERBLOCK_AS_REDUCESCATTERBLOCK_LANE = 5
+#endif
 };
 
 static alg_choice_t module_algs[] = {
     { REDUCESCATTERBLOCK_DEFAULT, "default" },
     { REDUCESCATTERBLOCK_AS_REDUCE_SCATTER, "reducescatterblock_as_reduce_scatter" },
     { REDUCESCATTERBLOCK_AS_REDUCESCATTER, "reducescatterblock_as_reducescatter" },
-    { REDUCESCATTERBLOCK_AS_ALLREDUCE, "reducescatterblock_as_allreduce" },
+    { REDUCESCATTERBLOCK_AS_ALLREDUCE, "reducescatterblock_as_allreduce" }
+#ifdef HAVE_LANE_COLL
+    ,
     { REDUCESCATTERBLOCK_AS_REDUCESCATTERBLOCK_HIER, "reducescatterblock_as_reducescatterblock_hier" },
-    { REDUCESCATTERBLOCK_AS_REDUCESCATTERBLOCK_LANE, "reducescatterblock_as_reducescatterblock_lane" },
+    { REDUCESCATTERBLOCK_AS_REDUCESCATTERBLOCK_LANE, "reducescatterblock_as_reducescatterblock_lane" }
+#endif
 };
 
 static module_alg_choices_t module_choices = {
@@ -122,12 +128,14 @@ int MPI_Reduce_scatter_block(const void* sendbuf, void* recvbuf, const int recvc
   case REDUCESCATTERBLOCK_AS_ALLREDUCE:
     ret_status = MPI_Reduce_scatter_block_as_Allreduce(sendbuf, recvbuf, recvcount, datatype, op, comm);
     break;
+#ifdef HAVE_LANE_COLL
   case REDUCESCATTERBLOCK_AS_REDUCESCATTERBLOCK_HIER:
     ret_status = Reduce_scatter_block_hier(sendbuf, recvbuf, recvcount, datatype, op, comm);
     break;
   case REDUCESCATTERBLOCK_AS_REDUCESCATTERBLOCK_LANE:
     ret_status = Reduce_scatter_block_lane(sendbuf, recvbuf, recvcount, datatype, op, comm);
     break;
+#endif
   case REDUCESCATTERBLOCK_DEFAULT:
     call_default = 1;
     break;

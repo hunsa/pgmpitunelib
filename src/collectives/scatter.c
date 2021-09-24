@@ -47,17 +47,23 @@ static void set_algid(const int algid);
 enum mockups {
   SCATTER_DEFAULT = 0,
   SCATTER_AS_BCAST = 1,
-  SCATTER_AS_SCATTERV = 2,
+  SCATTER_AS_SCATTERV = 2
+#ifdef HAVE_LANE_COLL
+  ,
   SCATTER_AS_SCATTER_HIER = 3,
   SCATTER_AS_SCATTER_LANE = 4
+#endif
 };
 
 static alg_choice_t module_algs[] = {
     { SCATTER_DEFAULT, "default" },
     { SCATTER_AS_BCAST, "scatter_as_bcast" },
-    { SCATTER_AS_SCATTERV, "scatter_as_scatterv" },
+    { SCATTER_AS_SCATTERV, "scatter_as_scatterv" }
+#ifdef HAVE_LANE_COLL
+    ,
     { SCATTER_AS_SCATTER_HIER, "scatter_as_scatter_hier" },
     { SCATTER_AS_SCATTER_LANE, "scatter_as_scatter_lane" }
+#endif
 };
 
 static module_alg_choices_t module_choices = {
@@ -115,12 +121,14 @@ int MPI_Scatter(const void* sendbuf, int sendcount, MPI_Datatype sendtype, void*
   case SCATTER_AS_SCATTERV:
     ret_status = MPI_Scatter_as_Scatterv(sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, root, comm);
     break;
+#ifdef HAVE_LANE_COLL
   case SCATTER_AS_SCATTER_HIER:
     ret_status = Scatter_hier(sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, root, comm);
     break;
   case SCATTER_AS_SCATTER_LANE:
     ret_status = Scatter_lane(sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, root, comm);
     break;
+#endif
   case SCATTER_DEFAULT:
     call_default = 1;
     break;
