@@ -43,16 +43,6 @@ if(OPTION_BUFFER_ALIGNMENT)
     SET(MY_COMPILE_FLAGS "${MY_COMPILE_FLAGS} -DOPTION_BUFFER_ALIGNMENT=${OPTION_BUFFER_ALIGNMENT}")
 endif()
 
-if(OPTION_ENABLE_LANE_COLL)
-	SET(HAVE_LANE_COLL 0) # default
-	if(EXISTS "${CMAKE_SOURCE_DIR}/mpi-lane-collectives/src/tuw_lanecoll.h")
-		SET(MY_COMPILE_FLAGS "${MY_COMPILE_FLAGS} -DHAVE_LANE_COLL")
-		SET(LANE_COLL_ROOT ${CMAKE_SOURCE_DIR}/mpi-lane-collectives)
-		SET(HAVE_LANE_COLL 1)
-	endif()
-endif()
-
-
 set(PGMPI_COLL_FILES
 ${SRC_DIR}/collectives/allgather.c
 ${SRC_DIR}/collectives/allgather_impl.c
@@ -74,8 +64,20 @@ ${SRC_DIR}/collectives/scatter.c
 ${SRC_DIR}/collectives/scatter_impl.c
 )
 
+if(OPTION_ENABLE_LANE_COLL)
+	message(STATUS "Extension: Checking for lane collectives")
+	SET(HAVE_LANE_COLL 0) # default
+	if(EXISTS "${CMAKE_SOURCE_DIR}/submodules/mpi-lane-collectives/src/tuw_lanecoll.h")
+		SET(MY_COMPILE_FLAGS "${MY_COMPILE_FLAGS} -DHAVE_LANE_COLL")
+		SET(LANE_COLL_ROOT ${CMAKE_SOURCE_DIR}/submodules/mpi-lane-collectives)
+		SET(HAVE_LANE_COLL 1)
+	endif()
+else()
+	message(STATUS "Extension: hint you can enable lane collectives by using -DOPTION_ENABLE_LANE_COLL=ON")
+endif()
+
 if( HAVE_LANE_COLL )
-	message(STATUS "Lane collectives available and enabled")
+	message(STATUS "Extension: Lane collectives available and enabled")
 
 	set(PGMPI_COLL_FILES
 			${PGMPI_COLL_FILES}
@@ -83,7 +85,31 @@ if( HAVE_LANE_COLL )
 
 	INCLUDE_DIRECTORIES("${LANE_COLL_ROOT}/src")
 else()
-	message(STATUS "Lane collectives unavailable")
+	message(STATUS "Extension: Lane collectives unavailable")
+endif()
+
+if(OPTION_ENABLE_CIRCULANTS)
+	message(STATUS "Extension: Checking for circulants")
+	SET(HAVE_CIRCULANTS 0) # default
+	if(EXISTS "${CMAKE_SOURCE_DIR}/submodules/mpi_circulants/src/mpi_circulants.h")
+		SET(MY_COMPILE_FLAGS "${MY_COMPILE_FLAGS} -DHAVE_CIRCULANTS")
+		SET(CIRCULANTS_ROOT ${CMAKE_SOURCE_DIR}/submodules/mpi_circulants)
+		SET(HAVE_CIRCULANTS 1)
+	endif()
+else()
+	message(STATUS "Extension: hint you can enable circulants by using -OPTION_ENABLE_CIRCULANTS=ON")
+endif()
+
+if( HAVE_CIRCULANTS )
+	message(STATUS "Extension: Circulant collectives available and enabled")
+
+	set(PGMPI_COLL_FILES
+			${PGMPI_COLL_FILES}
+			${CIRCULANTS_ROOT}/src/mpi_circulants.c)
+
+	INCLUDE_DIRECTORIES("${CIRCULANTS_ROOT}/src")
+else()
+	message(STATUS "Extension: Circulant collectives unavailable")
 endif()
 
 

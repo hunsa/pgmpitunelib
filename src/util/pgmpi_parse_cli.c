@@ -122,7 +122,7 @@ void parse_cli_arguments(pgmpi_dictionary_t *dict, int *argc, char ***argv) {
         ZF_LOGV("key=%s, val=%s", key, val);
         pgmpitune_add_element_to_dict(dict, key, val);
       } else {
-        ZF_LOGW("cannot parse: %s", val);
+        ZF_LOGW("cannot parse: %s", arg_val);
       }
 
       free(arg_key);

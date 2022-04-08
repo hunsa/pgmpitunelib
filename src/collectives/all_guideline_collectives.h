@@ -16,4 +16,8 @@
 #include "tuw_lanecoll.h"
 #endif
 
+#ifdef HAVE_CIRCULANTS
+#include "mpi_circulants.h"
+#endif
+
 #endif /* SRC_COLLECTIVES_ALL_GUIDELINE_COLLECTIVES_H_ */

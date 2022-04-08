@@ -55,6 +55,10 @@ enum mockups {
   ALLREDUCE_AS_ALLREDUCE_LANE = 4,
   ALLREDUCE_AS_ALLREDUCE_HIER = 5
 #endif
+#ifdef HAVE_CIRCULANTS
+  ,
+  ALLREDUCE_AS_ALLREDUCE_CIRCULANT = 6,
+#endif
 };
 
 static alg_choice_t module_algs[] = {
@@ -66,6 +70,10 @@ static alg_choice_t module_algs[] = {
 ,
     { ALLREDUCE_AS_ALLREDUCE_LANE, "allreduce_as_allreduce_lane" },
     { ALLREDUCE_AS_ALLREDUCE_HIER, "allreduce_as_allreduce_hier" }
+#endif
+#ifdef HAVE_CIRCULANTS
+    ,
+    { ALLREDUCE_AS_ALLREDUCE_CIRCULANT, "allreduce_as_allreduce_circulant" },
 #endif
 };
 
@@ -135,6 +143,11 @@ int MPI_Allreduce(const void *sendbuf, void *recvbuf, int count,
     break;
   case ALLREDUCE_AS_ALLREDUCE_HIER:
     ret_status = Allreduce_hier(sendbuf, recvbuf, count, datatype, op, comm);
+    break;
+#endif
+#ifdef HAVE_CIRCULANTS
+  case ALLREDUCE_AS_ALLREDUCE_CIRCULANT:
+    ret_status = Allreduce_circulant(sendbuf, recvbuf, count, datatype, op, comm);
     break;
 #endif
   case ALLREDUCE_DEFAULT:

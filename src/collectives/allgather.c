@@ -58,6 +58,10 @@ enum mockups {
   ALLGATHER_AS_ALLGATHER_LANE_ZERO = 6,
   ALLGATHER_AS_ALLGATHER_HIER = 7
 #endif
+#ifdef HAVE_CIRCULANTS
+  ,
+  ALLGATHER_AS_ALLGATHER_CIRCULANT = 8
+#endif
 };
 
 static alg_choice_t module_algs[] = {
@@ -71,6 +75,10 @@ static alg_choice_t module_algs[] = {
     { ALLGATHER_AS_ALLGATHER_LANE, "allgather_as_allgather_lane" },
     { ALLGATHER_AS_ALLGATHER_LANE_ZERO, "allgather_as_allgather_lane_zero" },
     { ALLGATHER_AS_ALLGATHER_HIER, "allgather_as_allgather_hier" }
+#endif
+#ifdef HAVE_CIRCULANTS
+    ,
+    { ALLGATHER_AS_ALLGATHER_CIRCULANT, "allgather_as_allgather_circulant" },
 #endif
 };
 
@@ -153,6 +161,12 @@ int MPI_Allgather(const void *sendbuf, int sendcount, MPI_Datatype sendtype,
   case ALLGATHER_AS_ALLGATHER_HIER:
     ret_status = Allgather_hier(sendbuf, sendcount, sendtype, recvbuf,
         recvcount, recvtype, comm);
+    break;
+#endif
+#ifdef HAVE_CIRCULANTS
+  case ALLGATHER_AS_ALLGATHER_CIRCULANT:
+    ret_status = Allgather_circulant(sendbuf, sendcount, sendtype, recvbuf,
+                                     recvcount, recvtype, comm);
     break;
 #endif
     case ALLGATHER_DEFAULT:

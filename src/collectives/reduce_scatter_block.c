@@ -54,6 +54,10 @@ enum mockups {
   REDUCESCATTERBLOCK_AS_REDUCESCATTERBLOCK_HIER = 4,
   REDUCESCATTERBLOCK_AS_REDUCESCATTERBLOCK_LANE = 5
 #endif
+#ifdef HAVE_CIRCULANTS
+  ,
+  REDUCESCATTERBLOCK_AS_REDUCESCATTERBLOCK_CIRCULANT = 6,
+#endif
 };
 
 static alg_choice_t module_algs[] = {
@@ -65,6 +69,10 @@ static alg_choice_t module_algs[] = {
     ,
     { REDUCESCATTERBLOCK_AS_REDUCESCATTERBLOCK_HIER, "reducescatterblock_as_reducescatterblock_hier" },
     { REDUCESCATTERBLOCK_AS_REDUCESCATTERBLOCK_LANE, "reducescatterblock_as_reducescatterblock_lane" }
+#endif
+#ifdef HAVE_CIRCULANTS
+    ,
+    { REDUCESCATTERBLOCK_AS_REDUCESCATTERBLOCK_CIRCULANT, "reducescatterblock_as_reducescatterblock_circulant" },
 #endif
 };
 
@@ -134,6 +142,11 @@ int MPI_Reduce_scatter_block(const void* sendbuf, void* recvbuf, const int recvc
     break;
   case REDUCESCATTERBLOCK_AS_REDUCESCATTERBLOCK_LANE:
     ret_status = Reduce_scatter_block_lane(sendbuf, recvbuf, recvcount, datatype, op, comm);
+    break;
+#endif
+#ifdef HAVE_CIRCULANTS
+  case REDUCESCATTERBLOCK_AS_REDUCESCATTERBLOCK_CIRCULANT:
+    ret_status = Reduce_scatter_block_circulant(sendbuf, recvbuf, recvcount, datatype, op, comm);
     break;
 #endif
   case REDUCESCATTERBLOCK_DEFAULT:
