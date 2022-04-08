@@ -1,3 +1,6 @@
-[submodule "mpi-lane-collectives"]
-	path = mpi-lane-collectives
+[submodule "submodules/mpi_circulants"]
+	path = submodules/mpi_circulants
+	url = git@hellogitty.par.tuwien.ac.at:traff/reduce_codes.git
+[submodule "submodules/mpi-lane-collectives"]
+	path = submodules/mpi-lane-collectives
 	url = https://github.com/parlab-tuwien/mpi-lane-collectives.git
