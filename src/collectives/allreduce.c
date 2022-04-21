@@ -58,6 +58,7 @@ enum mockups {
 #ifdef HAVE_CIRCULANTS
   ,
   ALLREDUCE_AS_ALLREDUCE_CIRCULANT = 6,
+  ALLREDUCE_AS_REDUCESCATTER_ALLGATHERV_CIRCULANT = 7
 #endif
 };
 
@@ -74,6 +75,8 @@ static alg_choice_t module_algs[] = {
 #ifdef HAVE_CIRCULANTS
     ,
     { ALLREDUCE_AS_ALLREDUCE_CIRCULANT, "allreduce_as_allreduce_circulant" },
+    { ALLREDUCE_AS_REDUCESCATTER_ALLGATHERV_CIRCULANT, "allreduce_as_allreduce_redscatter_allgatherv_circulant" }
+
 #endif
 };
 
@@ -148,6 +151,9 @@ int MPI_Allreduce(const void *sendbuf, void *recvbuf, int count,
 #ifdef HAVE_CIRCULANTS
   case ALLREDUCE_AS_ALLREDUCE_CIRCULANT:
     ret_status = Allreduce_circulant(sendbuf, recvbuf, count, datatype, op, comm);
+    break;
+  case ALLREDUCE_AS_REDUCESCATTER_ALLGATHERV_CIRCULANT:
+    ret_status = Allreduce_redscat_allgat(sendbuf, recvbuf, count, datatype, op, comm);
     break;
 #endif
   case ALLREDUCE_DEFAULT:
