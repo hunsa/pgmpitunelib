@@ -232,3 +232,33 @@ int MPI_Reduce_as_Reduce_scatter_Gatherv(const void* sendbuf, void* recvbuf, int
   release_int_buffers();
   return MPI_SUCCESS;
 }
+
+int MPI_Reduce_as_Reduce_scatter(const void* sendbuf, void* recvbuf, int count, MPI_Datatype datatype,
+                                 MPI_Op op, int root, MPI_Comm comm) {
+  int i, rank, size;
+  MPI_Aint type_extent, lb;
+  int ret;
+  int *recvcounts;
+  int buf_status = BUF_NO_ERROR;
+
+  MPI_Comm_rank(comm, &rank);
+  MPI_Comm_size(comm, &size);
+  MPI_Type_get_extent(datatype, &lb, &type_extent);
+
+  ZF_LOGV("Calling MPI_Reduce_as_Reduce_scatter");
+
+  buf_status = grab_int_buffer_1(size, &recvcounts);
+  ZF_LOGV("fake int buffer 1 points to %p", recvcounts);
+  if (buf_status != BUF_NO_ERROR) {
+    return MPI_ERR_NO_MEM;
+  }
+
+  for(i=0; i<size; i++) recvcounts[i] = 0;
+  recvcounts[root] = count;
+
+  ret = PGMPI(MPI_Reduce_scatter(sendbuf, recvbuf, recvcounts, datatype, op, comm));
+
+  release_int_buffers();
+  return ret;
+}
+
