@@ -8,7 +8,7 @@ project(pgmpitunelib)
 set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
 set(TEST_DIR "${CMAKE_SOURCE_DIR}/test")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
-set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}")
+set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}")
 
 set(INCLUDE_PLATFORM_CONFIG_FILE "${CMAKE_SOURCE_DIR}/platform_files/default.cmake" 
     CACHE STRING "Configure project to use a specific platform file")
