@@ -25,6 +25,8 @@ option(OPTION_ENABLE_DEBUGGING "Enable debugging" off)
 option(OPTION_ENABLE_TESTS "Enable tests" off)
 option(OPTION_ENABLE_ALGID_STORING "Enable tracing algorithmic IDs" on)
 option(OPTION_ENABLE_LANE_COLL "Enable lane collectives if available" on)
+option(OPTION_ENABLE_CIRCULANTS "Enable circulant collectives if available" off)
+
 
 set(OPTION_BUFFER_ALIGNMENT "" CACHE STRING "Alignment to use for buffer allocation [default: no alignment (allocation with calloc)]")
 
@@ -97,7 +99,7 @@ if(OPTION_ENABLE_CIRCULANTS)
 		SET(HAVE_CIRCULANTS 1)
 	endif()
 else()
-	message(STATUS "Extension: hint you can enable circulants by using -OPTION_ENABLE_CIRCULANTS=ON")
+	message(STATUS "Extension: hint you can enable circulants by using -DOPTION_ENABLE_CIRCULANTS=ON")
 endif()
 
 if( HAVE_CIRCULANTS )
@@ -144,6 +146,7 @@ ${SRC_DIR}/pgmpi_mpihook_tuned.c
 
 SET_TARGET_PROPERTIES(pgmpicli PROPERTIES COMPILE_FLAGS "${MY_COMPILE_FLAGS} -DUSE_PMPI")
 SET_TARGET_PROPERTIES(pgmpicli PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib")
+install(TARGETS pgmpicli DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 
 SET_TARGET_PROPERTIES(pgmpituned PROPERTIES COMPILE_FLAGS "${MY_COMPILE_FLAGS}")
 SET_TARGET_PROPERTIES(pgmpituned PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib")
