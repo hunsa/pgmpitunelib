@@ -34,7 +34,7 @@
 #include "pgmpi_tune.h"
 #include "bufmanager/pgmpi_buf.h"
 #include "pgmpi_algid_store.h"
-#include "collectives/collective_modules.h"
+#include "collective_modules.h"
 #include "util/pgmpi_parse_cli.h"
 #include "all_guideline_collectives.h"
 

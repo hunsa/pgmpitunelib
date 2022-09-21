@@ -30,7 +30,7 @@
 
 #include "pgmpi_tune.h"
 #include "bufmanager/pgmpi_buf.h"
-#include "collectives/collective_modules.h"
+#include "include/collective_modules.h"
 #include "tests.h"
 
 #define ZF_LOG_LEVEL MY_ZF_LOG_LEVEL

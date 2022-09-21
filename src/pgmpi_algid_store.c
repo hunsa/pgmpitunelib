@@ -34,7 +34,7 @@
 
 #include "map/hashtable_int.h"
 #include "pgmpi_algid_store.h"
-#include "collectives/collective_modules.h"
+#include "include/collective_modules.h"
 
 static hashtable_t **maps;
 const int INITIAL_MAP_SIZE = 100;

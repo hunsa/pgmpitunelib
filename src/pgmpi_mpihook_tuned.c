@@ -33,7 +33,7 @@
 #include <mpi.h>
 #include "pgmpi_tune.h"
 #include "bufmanager/pgmpi_buf.h"
-#include "collectives/collective_modules.h"
+#include "include/collective_modules.h"
 #include "config/pgmpi_config.h"
 #include "tuning/pgmpi_function_replacer.h"
 #include "tuning/pgmpi_profile_reader.h"
