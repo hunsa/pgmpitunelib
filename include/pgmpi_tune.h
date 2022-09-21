@@ -29,7 +29,6 @@
 
 #include <mpi.h>
 //#include "log/zf_log.h"
-#include "util/keyvalue_store.h"
 
 typedef enum {
   CID_MPI_ALLGATHER = 0,
@@ -79,8 +78,6 @@ void init_pgtune_lib(int *argc, char ***argv);
 void finalize_pgtune_lib();
 
 int get_pgmpi_context();
-
-pgmpi_dictionary_t *pgmpi_context_get_cli_dict();
 
 #ifdef USE_PMPI
 #define PGMPI_COMM_SIZE PMPI_Comm_size

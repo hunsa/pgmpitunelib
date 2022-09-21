@@ -38,6 +38,7 @@
 #include "tuning/pgmpi_function_replacer.h"
 #include "tuning/pgmpi_profile_reader.h"
 #include "pgmpi_algid_store.h"
+#include "pgmpi_mpihook_private.h"
 
 #define ZF_LOG_LEVEL MY_ZF_LOG_LEVEL
 #include "log/zf_log.h"

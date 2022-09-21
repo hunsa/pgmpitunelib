@@ -38,6 +38,7 @@
 #include "util/pgmpi_parse_cli.h"
 #include "util/keyvalue_store.h"
 #include "pgmpi_algid_store.h"
+#include "pgmpi_mpihook_private.h"
 
 #define ZF_LOG_LEVEL MY_ZF_LOG_LEVEL
 #include "log/zf_log.h"
