@@ -83,6 +83,14 @@ void finalize_pgtune_lib();
 
 int get_pgmpi_context();
 
+/**
+ * function allows us to swap pgtune parameters from a library client (e.g., pgchecker)
+ * @param argc
+ * @param argv
+ */
+void pgtune_override_argv_parameter(int argc, char **argv);
+
+
 #ifdef USE_PMPI
 #define PGMPI_COMM_SIZE PMPI_Comm_size
 #define PGMPI( call )     P##call

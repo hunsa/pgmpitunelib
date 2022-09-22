@@ -163,5 +163,8 @@ int pgtune_get_algorithm(pgmpi_collectives_t cid, int msg_size, int comm_size,
   return context.context_get_algorithm(cid, msg_size, comm_size, alg_id);
 }
 
-
+void pgtune_override_argv_parameter(int argc, char **argv) {
+  pgmpitune_cleanup_dictionary(&hashmap);
+  parse_cli_arguments(&hashmap, &argc, &argv);
+}
 
