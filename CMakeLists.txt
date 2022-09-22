@@ -149,7 +149,7 @@ SET_TARGET_PROPERTIES(pgmpicli PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOUR
 
 set(PGMPI_HEADERS
 		include/pgmpi_tune.h
-		include/collective_modules.h
+		src/collectives/collective_modules.h
 )
 SET_TARGET_PROPERTIES(pgmpicli PROPERTIES PUBLIC_HEADER "${PGMPI_HEADERS}")
 

@@ -33,7 +33,7 @@
 #include <mpi.h>
 #include "pgmpi_tune.h"
 #include "bufmanager/pgmpi_buf.h"
-#include "include/collective_modules.h"
+#include "collectives/collective_modules.h"
 #include "config/pgmpi_config.h"
 #include "config/pgmpi_config_reader.h"
 #include "util/pgmpi_parse_cli.h"
@@ -52,7 +52,6 @@ int MPI_Init(int *argc, char ***argv) {
   ZF_LOGV("Intercepting MPI_Init");
   ret = PMPI_Init(argc, argv);
   init_pgtune_lib(argc, argv);
-  context.context_init();
   return ret;
 }
 
@@ -61,7 +60,6 @@ int MPI_Finalize( void ) {
   int ret;
   ZF_LOGV("Intercepting MPI_Finalize");
   finalize_pgtune_lib();
-  context.context_free();
   ret = PMPI_Finalize();
   return ret;
 }
@@ -125,6 +123,8 @@ void init_pgtune_lib(int *argc, char ***argv) {
 
     pgmpi_allocate_buffers(size_msg_buffer, size_int_buffer);
   }
+
+  context.context_init();
 }
 
 
@@ -145,6 +145,7 @@ void finalize_pgtune_lib() {
 
   pgmpitune_cleanup_dictionary(&hashmap);
 
+  context.context_free();
 }
 
 

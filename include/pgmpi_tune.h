@@ -30,6 +30,10 @@
 #include <mpi.h>
 //#include "log/zf_log.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum {
   CID_MPI_ALLGATHER = 0,
   CID_MPI_ALLREDUCE,
@@ -109,5 +113,8 @@ typedef struct {
   int (*context_get_algorithm)(pgmpi_collectives_t cid, int msg_size, int comm_size, int *alg_id);
 } pgmpi_context_hook_t;
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* INCLUDE_PGMPI_TUNE_H_ */

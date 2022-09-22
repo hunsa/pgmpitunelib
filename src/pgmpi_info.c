@@ -29,7 +29,7 @@
 #include <assert.h>
 
 #include "pgmpi_tune.h"
-#include "include/collective_modules.h"
+#include "collectives/collective_modules.h"
 
 static void print_module_info(FILE *fp, module_t *mod);
 

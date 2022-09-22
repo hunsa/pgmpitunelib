@@ -35,7 +35,7 @@
 
 
 #include "pgmpi_parse_cli.h"
-#include "include/collective_modules.h"
+#include "src/collectives/collective_modules.h"
 #include "util/keyvalue_store.h"
 
 
