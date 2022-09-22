@@ -34,6 +34,12 @@
 #else
 	#define ZF_LOG_USE_NSLOG 0
 #endif
+
+#if defined(__APPLE__) && defined(__MACH__)
+#include <pthread.h>
+int pthread_mach_thread_np(pthread_t); // fix annoying 'implicit declaration' warning
+#endif
+
 /* When defined, OutputDebugString() will be used instead of stderr (ignored on
  * non-Windows platforms). Uses OutputDebugStringA() variant and feeds it with
  * UTF-8 data.
@@ -323,7 +329,6 @@
 #endif
 #if defined(__MACH__) || defined(_AIX)
 	#include <pthread.h>
-  int pthread_mach_thread_np(pthread_t); // fix annoying 'implicit declaration' warning
 #endif
 
 #define INLINE _ZF_LOG_INLINE
