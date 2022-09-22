@@ -167,5 +167,7 @@ void pgtune_override_argv_parameter(int argc, char **argv) {
   pgmpitune_cleanup_dictionary(&hashmap);
   pgmpitune_init_dictionary(&hashmap);
   parse_cli_arguments(&hashmap, &argc, &argv);
+  // need to reinit context to pass args to modules
+  context.context_init();
 }
 
