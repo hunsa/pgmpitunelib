@@ -74,8 +74,10 @@ static void pass_cli_arguments_to_modules() {
       slength2 = strlen(mod->cli_prefix);
       if (slength == slength2 && strncmp(mod->cli_prefix, keys[i], slength) == 0) {
         char *val = pgmpitune_get_value_from_dict(hashmap, keys[i]);
-        mod->parse(val);
-        free(val);
+        if( val != NULL ) {
+          mod->parse(val);
+          free(val);
+        }
       }
     }
   }
