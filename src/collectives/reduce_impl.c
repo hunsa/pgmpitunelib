@@ -247,7 +247,7 @@ int MPI_Reduce_as_Reduce_scatter(const void* sendbuf, void* recvbuf, int count, 
 
   ZF_LOGV("Calling MPI_Reduce_as_Reduce_scatter");
 
-  buf_status = grab_int_buffer_1(size, &recvcounts);
+  buf_status = grab_int_buffer_1(size * type_extent, &recvcounts);
   ZF_LOGV("fake int buffer 1 points to %p", recvcounts);
   if (buf_status != BUF_NO_ERROR) {
     return MPI_ERR_NO_MEM;

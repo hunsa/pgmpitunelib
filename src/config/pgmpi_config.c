@@ -44,7 +44,7 @@ void pgmpi_config_init() {
   pgmpitune_init_dictionary(config.config_dict);
 
   pgmpitune_add_element_to_dict(config.config_dict, "size_msg_buffer_bytes", "100000000");
-  pgmpitune_add_element_to_dict(config.config_dict, "size_int_buffer_bytes", "10000");
+  pgmpitune_add_element_to_dict(config.config_dict, "size_int_buffer_bytes", "200000");
 }
 
 void pgmpi_config_free() {
