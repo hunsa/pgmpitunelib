@@ -55,6 +55,10 @@ enum mockups {
   REDUCE_AS_REDUCE_HIER = 5,
   REDUCE_AS_REDUCE_LANE = 6
 #endif
+#ifdef HAVE_CIRCULANTS
+  ,
+  REDUCE_AS_REDUCE_CIRCULANT = 7
+#endif
 };
 
 static alg_choice_t module_algs[] = {
@@ -67,6 +71,10 @@ static alg_choice_t module_algs[] = {
     ,
     { REDUCE_AS_REDUCE_HIER, "reduce_as_reduce_hier" },
     { REDUCE_AS_REDUCE_LANE, "reduce_as_reduce_lane" }
+#endif
+#ifdef HAVE_CIRCULANTS
+    ,
+    { REDUCE_AS_REDUCE_CIRCULANT, "reduce_as_reduce_circulant" },
 #endif
 };
 
@@ -136,6 +144,11 @@ int MPI_Reduce(const void* sendbuf, void* recvbuf, int count, MPI_Datatype datat
     break;
   case REDUCE_AS_REDUCE_LANE:
     ret_status = Reduce_lane(sendbuf, recvbuf, count, datatype, op, root, comm);
+    break;
+#endif
+#ifdef HAVE_CIRCULANTS
+  case REDUCE_AS_REDUCE_CIRCULANT:
+    ret_status = Reduce_circulant(sendbuf, recvbuf, count, datatype, op, root, comm);
     break;
 #endif
   case REDUCE_DEFAULT:
