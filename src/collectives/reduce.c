@@ -57,7 +57,8 @@ enum mockups {
 #endif
 #ifdef HAVE_CIRCULANTS
   ,
-  REDUCE_AS_REDUCE_CIRCULANT = 7
+  REDUCE_AS_REDUCE_CIRCULANT = 7,
+  REDUCE_AS_REDUCE_SCATTER_CIRCULANT
 #endif
 };
 
@@ -75,6 +76,7 @@ static alg_choice_t module_algs[] = {
 #ifdef HAVE_CIRCULANTS
     ,
     { REDUCE_AS_REDUCE_CIRCULANT, "reduce_as_reduce_circulant" },
+    { REDUCE_AS_REDUCE_SCATTER_CIRCULANT, "reduce_as_reduce_scatter_circulant" },
 #endif
 };
 
@@ -149,6 +151,9 @@ int MPI_Reduce(const void* sendbuf, void* recvbuf, int count, MPI_Datatype datat
 #ifdef HAVE_CIRCULANTS
   case REDUCE_AS_REDUCE_CIRCULANT:
     ret_status = Reduce_circulant(sendbuf, recvbuf, count, datatype, op, root, comm);
+    break;
+  case REDUCE_AS_REDUCE_SCATTER_CIRCULANT:
+    ret_status = Reduce_as_Reduce_scatter_circulant(sendbuf, recvbuf, count, datatype, op, root, comm);
     break;
 #endif
   case REDUCE_DEFAULT:
