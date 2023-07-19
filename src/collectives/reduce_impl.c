@@ -236,7 +236,7 @@ int MPI_Reduce_as_Reduce_scatter_Gatherv(const void* sendbuf, void* recvbuf, int
 int MPI_Reduce_as_Reduce_scatter(const void* sendbuf, void* recvbuf, int count, MPI_Datatype datatype,
                                  MPI_Op op, int root, MPI_Comm comm) {
   int i, rank, size;
-  MPI_Aint type_extent, lb;
+  //MPI_Aint type_extent, lb;
   int ret;
   int *recvcounts;
   int buf_status = BUF_NO_ERROR;
