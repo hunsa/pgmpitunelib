@@ -1,6 +1,6 @@
 [submodule "submodules/mpi_circulants"]
 	path = submodules/mpi_circulants
-	url = git@github.com:hunsa/mpi_circulants.git
+	url = git@github.com:parlab-tuwien/mpi-circulant-collectives.git
 	branch = main
 [submodule "submodules/mpi-lane-collectives"]
 	path = submodules/mpi-lane-collectives
