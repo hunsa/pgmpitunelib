@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.22)
 
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules/")
@@ -83,7 +83,9 @@ if( HAVE_LANE_COLL )
 
 	set(PGMPI_COLL_FILES
 			${PGMPI_COLL_FILES}
-			${LANE_COLL_ROOT}/src/tuw_lanecoll.c)
+			${LANE_COLL_ROOT}/src/tuw_lanecoll.c
+			${LANE_COLL_ROOT}/src/tuw_lane_bcast.c
+	)
 
 	INCLUDE_DIRECTORIES("${LANE_COLL_ROOT}/src")
 else()
