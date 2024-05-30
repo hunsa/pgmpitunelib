@@ -3,16 +3,22 @@ cmake_minimum_required(VERSION 3.22)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules/")
    
-project(pgmpitunelib)
+project(
+		pgmpitunelib
+		VERSION 0.3.0
+)
 
 set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
 set(TEST_DIR "${CMAKE_SOURCE_DIR}/test")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}")
 
-set(INCLUDE_PLATFORM_CONFIG_FILE "${CMAKE_SOURCE_DIR}/platform_files/default.cmake" 
-    CACHE STRING "Configure project to use a specific platform file")
-include(${INCLUDE_PLATFORM_CONFIG_FILE})
+find_package(MPI REQUIRED)
+SET(BUILD_SHARED_LIBS 1)
+
+#set(INCLUDE_PLATFORM_CONFIG_FILE "${CMAKE_SOURCE_DIR}/platform_files/default.cmake"
+#    CACHE STRING "Configure project to use a specific platform file")
+#include(${INCLUDE_PLATFORM_CONFIG_FILE})
 
 set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR} "include")
@@ -146,64 +152,61 @@ ${SRC_DIR}/tuning/pgmpi_profile_reader.c
 ${SRC_DIR}/pgmpi_mpihook_tuned.c
 )
 
+#set(PGMPI_HEADERS
+#		include/pgmpi_tune.h
+#		src/collectives/collective_modules.h
+#)
 SET_TARGET_PROPERTIES(pgmpicli PROPERTIES COMPILE_FLAGS "${MY_COMPILE_FLAGS} -DUSE_PMPI")
 SET_TARGET_PROPERTIES(pgmpicli PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib")
-
-set(PGMPI_HEADERS
-		include/pgmpi_tune.h
-		src/collectives/collective_modules.h
-)
-SET_TARGET_PROPERTIES(pgmpicli PROPERTIES PUBLIC_HEADER "${PGMPI_HEADERS}")
+#SET_TARGET_PROPERTIES(pgmpicli PROPERTIES PUBLIC_HEADER "${PGMPI_HEADERS}")
+TARGET_LINK_LIBRARIES(pgmpicli MPI::MPI_C)
 
 #install(TARGETS pgmpicli DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 INSTALL(TARGETS pgmpicli
 		LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
-		PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_PREFIX}/include
-		)
+#		PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_PREFIX}/include
+)
 
 SET_TARGET_PROPERTIES(pgmpituned PROPERTIES COMPILE_FLAGS "${MY_COMPILE_FLAGS}")
 SET_TARGET_PROPERTIES(pgmpituned PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib")
-
+TARGET_LINK_LIBRARIES(pgmpituned MPI::MPI_C)
 
 add_executable(pgmpi_info
 ${SRC_DIR}/pgmpi_info.c
 )
-TARGET_LINK_LIBRARIES(pgmpi_info pgmpicli)
+TARGET_LINK_LIBRARIES(pgmpi_info pgmpicli MPI::MPI_C)
 
 if(OPTION_ENABLE_TESTS)
     add_executable(test1
 		${TEST_DIR}/libtest/test1.c
 	)
-	TARGET_LINK_LIBRARIES(test1 pgmpicli)
+	TARGET_LINK_LIBRARIES(test1 pgmpicli MPI::MPI_C)
 
 	add_executable(test2
 		${TEST_DIR}/libtest/test1.c
 	)
-	TARGET_LINK_LIBRARIES(test2 pgmpituned)
+	TARGET_LINK_LIBRARIES(test2 pgmpituned MPI::MPI_C)
 	
 	add_executable(maptest1
 		${TEST_DIR}/maptest/maptest1.c
 	)
-	TARGET_LINK_LIBRARIES(maptest1 pgmpituned)
+	TARGET_LINK_LIBRARIES(maptest1 pgmpituned MPI::MPI_C)
 
 	add_executable(testcoll
 		${TEST_DIR}/colltest/tests.c
 		${TEST_DIR}/colltest/test_collectives.c
 	)
-	TARGET_LINK_LIBRARIES(testcoll pgmpicli)
+	TARGET_LINK_LIBRARIES(testcoll pgmpicli MPI::MPI_C)
 endif()
 
 
 
-set(CPACK_PACKAGE_VERSION_MAJOR "0")
-set(CPACK_PACKAGE_VERSION_MINOR "2")
-set(CPACK_PACKAGE_VERSION_PATCH "0")
-set(CPACK_SOURCE_GENERATOR "TBZ2")
 
-set(PGMPITUNE_NAME ${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH})
-set(CPACK_SOURCE_PACKAGE_FILE_NAME "${PGMPITUNE_NAME}-src")
+set(PGMPITUNE_NAME ${CMAKE_PROJECT_NAME}-${CMAKE_PROJECT_VERSION})
 set(DIST_ARCHIVE "${PGMPITUNE_NAME}-dist")
 
+set(CPACK_SOURCE_PACKAGE_FILE_NAME "${PGMPITUNE_NAME}-src")
+set(CPACK_SOURCE_GENERATOR "TBZ2")
 SET(CPACK_SOURCE_IGNORE_FILES
 "/CMakeFiles/"
 "/_CPack_Packages/"
