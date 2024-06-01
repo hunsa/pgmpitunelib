@@ -78,12 +78,30 @@ ${SRC_DIR}/collectives/scatter.c
 ${SRC_DIR}/collectives/scatter_impl.c
 )
 
-if(PATH_LANE_COLL)
-    set(LANE_COLL_SEARCH_PATHS ${PATH_LANE_COLL})
+###############################################################################
+find_path(CIRC_INCLUDE_DIR mpi_circulants.h PATHS ${PATH_CIRCULANTS}/include)
+find_library(CIRC_LIBRARIES NAMES mpicirculants PATHS ${PATH_CIRCULANTS}/lib)
+
+if(NOT CIRC_INCLUDE_DIR)
+	message(STATUS "mpi_circulants.h not found. Please set PATH_CIRCULANTS to enable this library.")
 endif()
 
-find_path(LANE_COLL_INCLUDE_DIR tuw_lanecoll.h PATHS ${PATH_LANE_COLL}/include)
-find_library(LANE_COLL_LIBRARIES NAMES lanec PATHS ${PATH_LANE_COLL}/lib)
+if(NOT CIRC_LIBRARIES)
+	message(STATUS "Library 'mpicirculants' not found. Please set PATH_CIRCULANTS to enable this library.")
+endif()
+
+if(CIRC_INCLUDE_DIR AND CIRC_LIBRARIES)
+	message(STATUS "Extension: mpi-circulant collectives enabled: ${CIRC_LIBRARIES}")
+	SET(MY_COMPILE_FLAGS "${MY_COMPILE_FLAGS} -DHAVE_CIRCULANTS")
+	SET(HAVE_LANE_COLL 1)
+
+	SET(MY_EXTERNAL_LIBRARY_INCLUDES ${MY_EXTERNAL_LIBRARY_INCLUDES} ${CIRC_INCLUDE_DIR})
+	SET(MY_EXTERNAL_LIBRARY_LIBRARIES ${MY_EXTERNAL_LIBRARY_LIBRARIES} ${CIRC_LIBRARIES})
+endif()
+
+###############################################################################
+find_path(LANE_COLL_INCLUDE_DIR tuw_lanecoll.h PATHS ${CIRC_SEARCH_PATHS}/include)
+find_library(LANE_COLL_LIBRARIES NAMES lanec PATHS ${CIRC_SEARCH_PATHS}/lib)
 
 if(NOT LANE_COLL_INCLUDE_DIR)
 	message(STATUS "tuw_lanecoll.h not found. Please set PATH_LANE_COLL to enable this library.")
@@ -96,37 +114,12 @@ endif()
 if(LANE_COLL_INCLUDE_DIR AND LANE_COLL_LIBRARIES)
 	message(STATUS "Extension: lane collectives enabled: ${LANE_COLL_LIBRARIES}")
 	SET(MY_COMPILE_FLAGS "${MY_COMPILE_FLAGS} -DHAVE_LANE_COLL")
-	SET(LANE_COLL_ROOT ${CMAKE_SOURCE_DIR}/submodules/mpi-lane-collectives)
 	SET(HAVE_LANE_COLL 1)
 
 	SET(MY_EXTERNAL_LIBRARY_INCLUDES ${MY_EXTERNAL_LIBRARY_INCLUDES} ${LANE_COLL_INCLUDE_DIR})
 	SET(MY_EXTERNAL_LIBRARY_LIBRARIES ${MY_EXTERNAL_LIBRARY_LIBRARIES} ${LANE_COLL_LIBRARIES})
 endif()
-
-if(OPTION_ENABLE_CIRCULANTS)
-	message(STATUS "Extension: Checking for circulants")
-	SET(HAVE_CIRCULANTS 0) # default
-	if(EXISTS "${CMAKE_SOURCE_DIR}/submodules/mpi_circulants/src/mpi_circulants.h")
-		SET(MY_COMPILE_FLAGS "${MY_COMPILE_FLAGS} -DHAVE_CIRCULANTS")
-		SET(CIRCULANTS_ROOT ${CMAKE_SOURCE_DIR}/submodules/mpi_circulants)
-		SET(HAVE_CIRCULANTS 1)
-	endif()
-else()
-	message(STATUS "Extension: hint you can enable circulants by using -DOPTION_ENABLE_CIRCULANTS=ON")
-endif()
-
-if( HAVE_CIRCULANTS )
-	message(STATUS "Extension: Circulant collectives available and enabled")
-
-	set(PGMPI_COLL_FILES
-			${PGMPI_COLL_FILES}
-			${CIRCULANTS_ROOT}/src/mpi_circulants.c)
-
-	INCLUDE_DIRECTORIES("${CIRCULANTS_ROOT}/src")
-else()
-	message(STATUS "Extension: Circulant collectives unavailable")
-endif()
-
+###############################################################################
 
 set(PGMPI_LIB_FILES
 ${SRC_DIR}/pgmpi_algid_store.c
