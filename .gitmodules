@@ -2,7 +2,3 @@
 	path = submodules/mpi_circulants
 	url = git@github.com:parlab-tuwien/mpi-circulant-collectives.git
 	branch = main
-[submodule "submodules/mpi-lane-collectives"]
-	path = submodules/mpi-lane-collectives
-	url = https://github.com/parlab-tuwien/mpi-lane-collectives.git
-	branch = main
