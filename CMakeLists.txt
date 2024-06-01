@@ -26,15 +26,21 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR} "src")
 
 SET(MY_COMPILE_FLAGS "")
 
+SET(MY_EXTERNAL_LIBRARY_INCLUDES "")
+SET(MY_EXTERNAL_LIBRARY_LIBRARIES "")
+
 option(OPTION_ENABLE_LOGGING   "Enable logging" off)
 option(OPTION_ENABLE_DEBUGGING "Enable debugging" off)
 option(OPTION_ENABLE_TESTS "Enable tests" off)
 option(OPTION_ENABLE_ALGID_STORING "Enable tracing algorithmic IDs" on)
-option(OPTION_ENABLE_LANE_COLL "Enable lane collectives if available" on)
-option(OPTION_ENABLE_CIRCULANTS "Enable circulant collectives if available" off)
 
+set(PATH_LANE_COLL "" CACHE STRING "Path to lane collectives")
+set(PATH_CIRCULANTS "" CACHE STRING "Path to circulant collectives")
 
-set(OPTION_BUFFER_ALIGNMENT "" CACHE STRING "Alignment to use for buffer allocation [default: no alignment (allocation with calloc)]")
+#option(OPTION_ENABLE_LANE_COLL "Enable lane collectives if available" on)
+#option(OPTION_ENABLE_CIRCULANTS "Enable circulant collectives if available" off)
+
+set(OPTION_BUFFER_ALIGNMENT "" CACHE STRING "Alignment in bytes to use for buffer allocation [default: no alignment (allocation with calloc)]")
 
 if(OPTION_ENABLE_LOGGING)
     SET(MY_COMPILE_FLAGS "${MY_COMPILE_FLAGS} -DUSE_LOGGING")
@@ -72,30 +78,29 @@ ${SRC_DIR}/collectives/scatter.c
 ${SRC_DIR}/collectives/scatter_impl.c
 )
 
-if(OPTION_ENABLE_LANE_COLL)
-	message(STATUS "Extension: Checking for lane collectives")
-	SET(HAVE_LANE_COLL 0) # default
-	if(EXISTS "${CMAKE_SOURCE_DIR}/submodules/mpi-lane-collectives/src/tuw_lanecoll.h")
-		SET(MY_COMPILE_FLAGS "${MY_COMPILE_FLAGS} -DHAVE_LANE_COLL")
-		SET(LANE_COLL_ROOT ${CMAKE_SOURCE_DIR}/submodules/mpi-lane-collectives)
-		SET(HAVE_LANE_COLL 1)
-	endif()
-else()
-	message(STATUS "Extension: hint you can enable lane collectives by using -DOPTION_ENABLE_LANE_COLL=ON")
+if(PATH_LANE_COLL)
+    set(LANE_COLL_SEARCH_PATHS ${PATH_LANE_COLL})
 endif()
 
-if( HAVE_LANE_COLL )
-	message(STATUS "Extension: Lane collectives available and enabled")
+find_path(LANE_COLL_INCLUDE_DIR tuw_lanecoll.h PATHS ${PATH_LANE_COLL}/include)
+find_library(LANE_COLL_LIBRARIES NAMES lanec PATHS ${PATH_LANE_COLL}/lib)
 
-	set(PGMPI_COLL_FILES
-			${PGMPI_COLL_FILES}
-			${LANE_COLL_ROOT}/src/tuw_lanecoll.c
-			${LANE_COLL_ROOT}/src/tuw_lane_bcast.c
-	)
+if(NOT LANE_COLL_INCLUDE_DIR)
+	message(STATUS "tuw_lanecoll.h not found. Please set PATH_LANE_COLL to enable this library.")
+endif()
 
-	INCLUDE_DIRECTORIES("${LANE_COLL_ROOT}/src")
-else()
-	message(STATUS "Extension: Lane collectives unavailable")
+if(NOT LANE_COLL_LIBRARIES)
+	message(STATUS "Library 'lanec' not found. Please set PATH_LANE_COLL to enable this library.")
+endif()
+
+if(LANE_COLL_INCLUDE_DIR AND LANE_COLL_LIBRARIES)
+	message(STATUS "Extension: lane collectives enabled: ${LANE_COLL_LIBRARIES}")
+	SET(MY_COMPILE_FLAGS "${MY_COMPILE_FLAGS} -DHAVE_LANE_COLL")
+	SET(LANE_COLL_ROOT ${CMAKE_SOURCE_DIR}/submodules/mpi-lane-collectives)
+	SET(HAVE_LANE_COLL 1)
+
+	SET(MY_EXTERNAL_LIBRARY_INCLUDES ${MY_EXTERNAL_LIBRARY_INCLUDES} ${LANE_COLL_INCLUDE_DIR})
+	SET(MY_EXTERNAL_LIBRARY_LIBRARIES ${MY_EXTERNAL_LIBRARY_LIBRARIES} ${LANE_COLL_LIBRARIES})
 endif()
 
 if(OPTION_ENABLE_CIRCULANTS)
@@ -158,8 +163,9 @@ ${SRC_DIR}/pgmpi_mpihook_tuned.c
 #)
 SET_TARGET_PROPERTIES(pgmpicli PROPERTIES COMPILE_FLAGS "${MY_COMPILE_FLAGS} -DUSE_PMPI")
 SET_TARGET_PROPERTIES(pgmpicli PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib")
-#SET_TARGET_PROPERTIES(pgmpicli PROPERTIES PUBLIC_HEADER "${PGMPI_HEADERS}")
-TARGET_LINK_LIBRARIES(pgmpicli MPI::MPI_C)
+target_include_directories(pgmpicli PRIVATE ${MY_EXTERNAL_LIBRARY_INCLUDES})
+target_link_libraries(pgmpicli ${MY_EXTERNAL_LIBRARY_LIBRARIES} MPI::MPI_C)
+
 
 #install(TARGETS pgmpicli DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 INSTALL(TARGETS pgmpicli
@@ -169,7 +175,8 @@ INSTALL(TARGETS pgmpicli
 
 SET_TARGET_PROPERTIES(pgmpituned PROPERTIES COMPILE_FLAGS "${MY_COMPILE_FLAGS}")
 SET_TARGET_PROPERTIES(pgmpituned PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib")
-TARGET_LINK_LIBRARIES(pgmpituned MPI::MPI_C)
+target_include_directories(pgmpituned PRIVATE ${MY_EXTERNAL_LIBRARY_INCLUDES})
+target_link_libraries(pgmpituned ${MY_EXTERNAL_LIBRARY_LIBRARIES} MPI::MPI_C)
 
 add_executable(pgmpi_info
 ${SRC_DIR}/pgmpi_info.c
