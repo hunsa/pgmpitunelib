@@ -8,7 +8,6 @@ project(
 		VERSION 0.3.0
 )
 
-set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
 set(TEST_DIR "${CMAKE_SOURCE_DIR}/test")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}")
@@ -58,24 +57,24 @@ if(OPTION_BUFFER_ALIGNMENT)
 endif()
 
 set(PGMPI_COLL_FILES
-${SRC_DIR}/collectives/allgather.c
-${SRC_DIR}/collectives/allgather_impl.c
-${SRC_DIR}/collectives/allreduce.c
-${SRC_DIR}/collectives/allreduce_impl.c
-${SRC_DIR}/collectives/alltoall.c
-${SRC_DIR}/collectives/alltoall_impl.c
-${SRC_DIR}/collectives/bcast.c
-${SRC_DIR}/collectives/bcast_impl.c
-${SRC_DIR}/collectives/gather.c
-${SRC_DIR}/collectives/gather_impl.c
-${SRC_DIR}/collectives/reduce.c
-${SRC_DIR}/collectives/reduce_impl.c
-${SRC_DIR}/collectives/reduce_scatter_block.c
-${SRC_DIR}/collectives/reduce_scatter_block_impl.c
-${SRC_DIR}/collectives/scan.c
-${SRC_DIR}/collectives/scan_impl.c
-${SRC_DIR}/collectives/scatter.c
-${SRC_DIR}/collectives/scatter_impl.c
+src/collectives/allgather.c
+src/collectives/allgather_impl.c
+src/collectives/allreduce.c
+src/collectives/allreduce_impl.c
+src/collectives/alltoall.c
+src/collectives/alltoall_impl.c
+src/collectives/bcast.c
+src/collectives/bcast_impl.c
+src/collectives/gather.c
+src/collectives/gather_impl.c
+src/collectives/reduce.c
+src/collectives/reduce_impl.c
+src/collectives/reduce_scatter_block.c
+src/collectives/reduce_scatter_block_impl.c
+src/collectives/scan.c
+src/collectives/scan_impl.c
+src/collectives/scatter.c
+src/collectives/scatter_impl.c
 )
 
 ###############################################################################
@@ -122,32 +121,32 @@ endif()
 ###############################################################################
 
 set(PGMPI_LIB_FILES
-${SRC_DIR}/pgmpi_algid_store.c
-${SRC_DIR}/pgmpi_tune.c
-${SRC_DIR}/bufmanager/pgmpi_buf.c
-${SRC_DIR}/collectives/collective_modules.c
-${SRC_DIR}/config/pgmpi_config_reader.c
-${SRC_DIR}/config/pgmpi_config.c
-${SRC_DIR}/log/zf_log.c
-${SRC_DIR}/map/hashtable_int.c
-${SRC_DIR}/util/keyvalue_store.c
-${SRC_DIR}/util/pgmpi_parse_cli.c
-${SRC_DIR}/pgmpi_mpihook.c
+src/pgmpi_algid_store.c
+src/pgmpi_tune.c
+src/bufmanager/pgmpi_buf.c
+src/collectives/collective_modules.c
+src/config/pgmpi_config_reader.c
+src/config/pgmpi_config.c
+src/log/zf_log.c
+src/map/hashtable_int.c
+src/util/keyvalue_store.c
+src/util/pgmpi_parse_cli.c
+src/pgmpi_mpihook.c
 )
 
 add_library(pgmpicli
 ${PGMPI_COLL_FILES}
 ${PGMPI_LIB_FILES}
-${SRC_DIR}/pgmpi_mpihook_cli.c
+src/pgmpi_mpihook_cli.c
 )
 
 add_library(pgmpituned
 ${PGMPI_COLL_FILES}
 ${PGMPI_LIB_FILES}
-${SRC_DIR}/tuning/pgmpi_function_replacer.c
-${SRC_DIR}/tuning/pgmpi_profile.c
-${SRC_DIR}/tuning/pgmpi_profile_reader.c
-${SRC_DIR}/pgmpi_mpihook_tuned.c
+src/tuning/pgmpi_function_replacer.c
+src/tuning/pgmpi_profile.c
+src/tuning/pgmpi_profile_reader.c
+src/pgmpi_mpihook_tuned.c
 )
 
 #set(PGMPI_HEADERS
@@ -172,7 +171,7 @@ target_include_directories(pgmpituned PRIVATE ${MY_EXTERNAL_LIBRARY_INCLUDES})
 target_link_libraries(pgmpituned ${MY_EXTERNAL_LIBRARY_LIBRARIES} MPI::MPI_C)
 
 add_executable(pgmpi_info
-${SRC_DIR}/pgmpi_info.c
+src/pgmpi_info.c
 )
 TARGET_LINK_LIBRARIES(pgmpi_info pgmpicli MPI::MPI_C)
 
