@@ -92,8 +92,8 @@ if(CIRC_INCLUDE_DIR AND CIRC_LIBRARIES)
 endif()
 
 ###############################################################################
-find_path(LANE_COLL_INCLUDE_DIR tuw_lanecoll.h PATHS ${CIRC_SEARCH_PATHS}/include)
-find_library(LANE_COLL_LIBRARIES NAMES lanec PATHS ${CIRC_SEARCH_PATHS}/lib)
+find_path(LANE_COLL_INCLUDE_DIR tuw_lanecoll.h PATHS ${PATH_LANE_COLL}/include)
+find_library(LANE_COLL_LIBRARIES NAMES lanec PATHS ${PATH_LANE_COLL}/lib)
 
 if(NOT LANE_COLL_INCLUDE_DIR)
 	message(STATUS "tuw_lanecoll.h not found. Please set PATH_LANE_COLL to enable this library.")
