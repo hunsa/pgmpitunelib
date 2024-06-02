@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
 
-
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules/")
-   
 project(
 		pgmpitunelib
 		VERSION 0.3.0
@@ -15,9 +12,6 @@ set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}")
 find_package(MPI REQUIRED)
 SET(BUILD_SHARED_LIBS 1)
 
-#set(INCLUDE_PLATFORM_CONFIG_FILE "${CMAKE_SOURCE_DIR}/platform_files/default.cmake"
-#    CACHE STRING "Configure project to use a specific platform file")
-#include(${INCLUDE_PLATFORM_CONFIG_FILE})
 
 set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR} "include")
@@ -35,9 +29,8 @@ option(OPTION_ENABLE_ALGID_STORING "Enable tracing algorithmic IDs" on)
 
 set(PATH_LANE_COLL "" CACHE STRING "Path to lane collectives")
 set(PATH_CIRCULANTS "" CACHE STRING "Path to circulant collectives")
+set(PATH_SCHEDULE_COLL "" CACHE STRING "Path to schedule collectives")
 
-#option(OPTION_ENABLE_LANE_COLL "Enable lane collectives if available" on)
-#option(OPTION_ENABLE_CIRCULANTS "Enable circulant collectives if available" off)
 
 set(OPTION_BUFFER_ALIGNMENT "" CACHE STRING "Alignment in bytes to use for buffer allocation [default: no alignment (allocation with calloc)]")
 
@@ -78,8 +71,8 @@ src/collectives/scatter_impl.c
 )
 
 ###############################################################################
-find_path(CIRC_INCLUDE_DIR mpi_circulants.h PATHS ${PATH_CIRCULANTS}/include)
-find_library(CIRC_LIBRARIES NAMES mpicirculants PATHS ${PATH_CIRCULANTS}/lib)
+find_path(CIRC_INCLUDE_DIR mpi_circulants.h PATHS ${PATH_LANE_COLL}/include)
+find_library(CIRC_LIBRARIES NAMES mpicirculants PATHS ${PATH_LANE_COLL}/lib)
 
 if(NOT CIRC_INCLUDE_DIR)
 	message(STATUS "mpi_circulants.h not found. Please set PATH_CIRCULANTS to enable this library.")
@@ -117,6 +110,27 @@ if(LANE_COLL_INCLUDE_DIR AND LANE_COLL_LIBRARIES)
 
 	SET(MY_EXTERNAL_LIBRARY_INCLUDES ${MY_EXTERNAL_LIBRARY_INCLUDES} ${LANE_COLL_INCLUDE_DIR})
 	SET(MY_EXTERNAL_LIBRARY_LIBRARIES ${MY_EXTERNAL_LIBRARY_LIBRARIES} ${LANE_COLL_LIBRARIES})
+endif()
+
+###############################################################################
+find_path(SCHEDULE_COLL_INCLUDE_DIR tuw_schedule_collectives.h PATHS ${PATH_SCHEDULE_COLL}/include)
+find_library(SCHEDULE_COLL_LIBRARIES NAMES msc PATHS ${PATH_SCHEDULE_COLL}/lib)
+
+if(NOT SCHEDULE_COLL_INCLUDE_DIR)
+	message(STATUS "tuw_schedule_collectives.h not found. Please set PATH_SCHEDULE_COLL to enable this library.")
+endif()
+
+if(NOT SCHEDULE_COLL_LIBRARIES)
+	message(STATUS "Library 'msc' not found. Please set PATH_SCHEDULE_COLL to enable this library.")
+endif()
+
+if(SCHEDULE_COLL_INCLUDE_DIR AND SCHEDULE_COLL_LIBRARIES)
+	message(STATUS "Extension: schedule collectives enabled: ${SCHEDULE_COLL_LIBRARIES}")
+	SET(MY_COMPILE_FLAGS "${MY_COMPILE_FLAGS} -DHAVE_SCHEDULE_COLL")
+	SET(HAVE_SCHEDULE_COLL 1)
+
+	SET(MY_EXTERNAL_LIBRARY_INCLUDES ${MY_EXTERNAL_LIBRARY_INCLUDES} ${SCHEDULE_COLL_INCLUDE_DIR})
+	SET(MY_EXTERNAL_LIBRARY_LIBRARIES ${MY_EXTERNAL_LIBRARY_LIBRARIES} ${SCHEDULE_COLL_LIBRARIES})
 endif()
 ###############################################################################
 

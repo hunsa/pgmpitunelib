@@ -52,6 +52,10 @@ enum mockups {
   BCAST_AS_BCAST_LANE = 3,
   BCAST_AS_BCAST_HIER = 4
 #endif
+#ifdef HAVE_SCHEDULE_COLL
+  ,
+  BCAST_AS_SCHEDULE_BCAST = 5
+#endif
 };
 
 
@@ -63,6 +67,10 @@ static alg_choice_t module_algs[] = {
     ,
     { BCAST_AS_BCAST_LANE, "bcast_as_bcast_lane" },
     { BCAST_AS_BCAST_HIER, "bcast_as_bcast_hier" }
+#endif
+#ifdef HAVE_SCHEDULE_COLL
+    ,
+    { BCAST_AS_SCHEDULE_BCAST, "bcast_as_schedule_bcast" }
 #endif
 };
 
@@ -127,6 +135,11 @@ int MPI_Bcast(void* buffer, int count, MPI_Datatype datatype, int root, MPI_Comm
     break;
   case BCAST_AS_BCAST_HIER:
     ret_status = Bcast_hier(buffer, count, datatype, root, comm);
+    break;
+#endif
+#ifdef HAVE_SCHEDULE_COLL
+  case BCAST_AS_SCHEDULE_BCAST:
+    ret_status = Bcast_schedule(buffer, count, datatype, root, comm);
     break;
 #endif
   case BCAST_DEFAULT:

@@ -20,4 +20,9 @@
 #include "mpi_circulants.h"
 #endif
 
+#ifdef HAVE_SCHEDULE_COLL
+#include "tuw_schedule_collectives.h"
+#endif
+
+
 #endif /* SRC_COLLECTIVES_ALL_GUIDELINE_COLLECTIVES_H_ */
