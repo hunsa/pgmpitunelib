@@ -42,8 +42,8 @@ const int TEST_PASSED = 0;
 const int TEST_FAILED = 1;
 
 static char* test_res_str[] = {
-    "Passed", // 0
-    "FAILED", // 1
+    "Passed",  // 0
+    "FAILED",  // 1
 };
 
 

@@ -169,7 +169,8 @@ src/pgmpi_mpihook_tuned.c
 SET_TARGET_PROPERTIES(pgmpicli PROPERTIES COMPILE_FLAGS "${MY_COMPILE_FLAGS} -DUSE_PMPI")
 SET_TARGET_PROPERTIES(pgmpicli PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib")
 #SET_TARGET_PROPERTIES(pgmpicli PROPERTIES PUBLIC_HEADER "${PGMPI_HEADERS}")
-TARGET_LINK_LIBRARIES(pgmpicli MPI::MPI_C)
+target_include_directories(pgmpicli PRIVATE ${MY_EXTERNAL_LIBRARY_INCLUDES})
+target_link_libraries(pgmpicli ${MY_EXTERNAL_LIBRARY_LIBRARIES} MPI::MPI_C)
 
 #install(TARGETS pgmpicli DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 INSTALL(TARGETS pgmpicli
@@ -192,6 +193,7 @@ if(OPTION_ENABLE_TESTS)
 	)
 	TARGET_LINK_LIBRARIES(test1 pgmpicli MPI::MPI_C)
 
+
 	add_executable(test2
 		${TEST_DIR}/perfmodels/test_allgather.c
 	)
@@ -207,6 +209,7 @@ if(OPTION_ENABLE_TESTS)
 		${TEST_DIR}/colltest/test_collectives.c
 	)
 	TARGET_LINK_LIBRARIES(testcoll pgmpicli MPI::MPI_C)
+
 endif()
 
 
