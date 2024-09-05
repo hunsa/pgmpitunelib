@@ -47,10 +47,13 @@ static pgmpi_dictionary_t hashmap;
 
 extern pgmpi_context_hook_t context;
 
+void check_and_override_lib_env_params(int *argc, char ***argv);
+
 int MPI_Init(int *argc, char ***argv) {
   int ret;
   ZF_LOGV("Intercepting MPI_Init");
   ret = PMPI_Init(argc, argv);
+  check_and_override_lib_env_params(argc, argv);
   init_pgtune_lib(argc, argv);
   return ret;
 }
@@ -92,7 +95,67 @@ void free_pgmpi_config() {
 
 }
 
+static int compute_argc(char *str) {
+  int i;
+  int cnt = 0;
+  int white = 0;
+  int seenword = 0;
 
+  for (i = 0; i < strlen(str); i++) {
+    if (str[i] == ' ') {
+      white = 1;
+    } else {
+      if( i == strlen(str) -1 &&  white == 0 ) {
+        cnt++;
+      } else if (white == 1) {
+        if( seenword == 1 ) {
+          cnt++;
+        }
+      }
+      white = 0;
+      seenword = 1;
+    }
+  }
+  return cnt;
+}
+
+void check_and_override_lib_env_params(int *argc, char ***argv) {
+  char *env = getenv("PGMPI_PARAMS");
+  char **argvnew;
+
+  if( env != NULL ) {
+    char *token;
+    //printf("env:%s\n", env);
+    *argc = compute_argc(env) + 1;  // + 1 is for argv[0], which we'll copy
+    //printf("argc: %d\n", *argc);
+
+//    printf("(*argv)[0]=%s\n", (*argv)[0]);
+
+    //  TODO: we should probably free the old argv
+    argvnew = (char**)malloc(*argc * sizeof(char**));
+    // copy old argv[0]
+    argvnew[0] = (char*)"dummy";
+
+//    printf("argvnew[0]=%s\n", argvnew[0]);
+
+    token = strtok(env, " ");
+    if( token != NULL ) {
+//      printf("token: %s\n", token);
+      argvnew[1] = token;
+//      printf("argvnew[1]=%s\n", argvnew[1]);
+      for(int i=2; i<*argc; i++) {
+        token = strtok(NULL, " ");
+        if( token != NULL ) {
+//          printf("token: %s\n", token);
+          argvnew[i] = token;
+        }
+      }
+    }
+
+    *argv = argvnew;
+  }
+
+}
 
 
 

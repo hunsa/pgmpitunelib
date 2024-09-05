@@ -25,7 +25,7 @@ More details can be found in:
 
 ## Prerequisites
   - an MPI library 
-  - CMake (version >= 2.6)  
+  - CMake  
 
 ## Building the Code
 
@@ -64,6 +64,13 @@ mpicc *.c -o mympicode -lpgmpitunecli -lmpi
 mpirun -np 2 ./mympicode --module=allgather=alg:allgather_as_gather_bcast
 ```
 
+If the command line arguments are interfering with the paramater parsing of the actual binary, you can pass the options to the library by an
+environment variable called `PGMI_PARAMS`:
+```bash
+export PGMPI_PARAMS="--module=allgather=alg:allgather_as_gather_bcast"
+mpirun -np 2 ./mympicode
+```
+
 ## PGMPITuneD
 
 The user code has to be linked against the PGMPITuneD library.  
@@ -97,12 +104,16 @@ MPI_Allgather # collective name
 
 ### Example 
 - use the provided test profile to tune `MPI_Allgather`
-```
+```bash
   mpicc *.c -o mympicode -lpgmpituned -lmpi 
 
   mpirun -np 2 ./mympicode --ppath=${PGMPITUNELIB_PATH}/test/perfmodels/models1 
 ```
 
+Similarly, you can also pass this option by an environment varrable:
+```bash
+PGMPI_PARAMS="--ppath=${PGMPITUNELIB_PATH}/test/perfmodels/models1" mpirun -np 2 ./mympicode 
+```
 
 ## Use a configuration file for memory requirements
 

@@ -196,7 +196,7 @@ if(OPTION_ENABLE_TESTS)
 	TARGET_LINK_LIBRARIES(test1 pgmpicli MPI::MPI_C)
 
 	add_executable(test2
-		${TEST_DIR}/libtest/test1.c
+		${TEST_DIR}/perfmodels/test_allgather.c
 	)
 	TARGET_LINK_LIBRARIES(test2 pgmpituned MPI::MPI_C)
 	

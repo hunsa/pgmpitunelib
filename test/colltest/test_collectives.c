@@ -38,10 +38,8 @@
 
 static const int root_rank = 0;
 
-typedef enum test_res_codes {
-  TEST_PASSED = 0,
-  TEST_FAILED = 1
-} test_res_codes_t;
+const int TEST_PASSED = 0;
+const int TEST_FAILED = 1;
 
 static char* test_res_str[] = {
     [TEST_PASSED] = "Passed",
@@ -94,9 +92,9 @@ check_type_t get_test_check_type(char* module_mpiname) {
 }
 
 
-test_res_codes_t identical(void* buffer1, void* buffer2, size_t size) {
+int identical(void* buffer1, void* buffer2, size_t size) {
   size_t i;
-  test_res_codes_t res = TEST_PASSED;
+  int res = TEST_PASSED;
 
   for (i = 0; i < size; i++) {
     if (((char*) buffer1)[i] != ((char*) buffer2)[i]) {
@@ -107,12 +105,12 @@ test_res_codes_t identical(void* buffer1, void* buffer2, size_t size) {
   return res;
 }
 
-test_res_codes_t check_results(module_t *module, basic_collective_params_t* params, void *resbuf_ref, void *resbuf_test,
+int check_results(module_t *module, basic_collective_params_t* params, void *resbuf_ref, void *resbuf_test,
     size_t resbuf_size) {
 
   int rank, size;
-  test_res_codes_t local_test_result = TEST_FAILED;
-  test_res_codes_t test_result;
+  int local_test_result = TEST_FAILED;
+  int test_result;
   int *test_res_all_procs;
   int i;
 
@@ -146,7 +144,7 @@ test_res_codes_t check_results(module_t *module, basic_collective_params_t* para
   return test_result;
 }
 
-void print_test_result(module_t *module, int alg_id, test_res_codes_t test_res, MPI_Comm comm) {
+void print_test_result(module_t *module, int alg_id, int test_res, MPI_Comm comm) {
   int rank;
   MPI_Comm_rank(comm, &rank);
 
@@ -160,7 +158,7 @@ void print_test_result(module_t *module, int alg_id, test_res_codes_t test_res, 
 void do_test(module_t *module, basic_collective_params_t *params, int count) {
   void *resbuf_ref, *resbuf_test;
   size_t resbuf_size;
-  test_res_codes_t test_result;
+  int test_result;
   int alg_id;
   collective_test_t module_test;
   int rank;
