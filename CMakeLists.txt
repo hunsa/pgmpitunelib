@@ -183,7 +183,9 @@ INSTALL(TARGETS pgmpicli
 
 SET_TARGET_PROPERTIES(pgmpituned PROPERTIES COMPILE_FLAGS "${MY_COMPILE_FLAGS}")
 SET_TARGET_PROPERTIES(pgmpituned PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib")
-TARGET_LINK_LIBRARIES(pgmpituned MPI::MPI_C)
+target_include_directories(pgmpituned PRIVATE ${MY_EXTERNAL_LIBRARY_INCLUDES})
+target_link_libraries(pgmpituned ${MY_EXTERNAL_LIBRARY_LIBRARIES} MPI::MPI_C)
+
 
 add_executable(pgmpi_info
 src/pgmpi_info.c
