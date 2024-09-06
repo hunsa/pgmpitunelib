@@ -47,14 +47,16 @@ static pgmpi_dictionary_t hashmap;
 
 extern pgmpi_context_hook_t context;
 
-void check_and_override_lib_env_params(int *argc, char ***argv);
+int check_and_override_lib_env_params(int *argc, char ***argv);
 
 int MPI_Init(int *argc, char ***argv) {
   int ret;
+  int fake_argc;
+  char **fake_argv;
   ZF_LOGV("Intercepting MPI_Init");
   ret = PMPI_Init(argc, argv);
-  check_and_override_lib_env_params(argc, argv);
-  init_pgtune_lib(argc, argv);
+  int changed = check_and_override_lib_env_params(&fake_argc, &fake_argv);
+  changed ? init_pgtune_lib(&fake_argc, &fake_argv) : init_pgtune_lib(argc, argv);
   return ret;
 }
 
@@ -119,9 +121,14 @@ static int compute_argc(char *str) {
   return cnt;
 }
 
-void check_and_override_lib_env_params(int *argc, char ***argv) {
+/**
+ * returns 1 if env was set and argc and argv have been written
+ * otherwise returns 0 -> nothing was done
+ */
+int check_and_override_lib_env_params(int *argc, char ***argv) {
   char *env = getenv("PGMPI_PARAMS");
   char **argvnew;
+  int ret = 0;
 
   if( env != NULL ) {
     char *token;
@@ -153,8 +160,10 @@ void check_and_override_lib_env_params(int *argc, char ***argv) {
     }
 
     *argv = argvnew;
+    ret = 1;
   }
 
+  return ret;
 }
 
 
