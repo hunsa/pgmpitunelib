@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.22)
 
+# Prevent CMake from searching the install prefix during the find_* commands
+set(CMAKE_FIND_NO_INSTALL_PREFIX TRUE)
+
 project(
 		pgmpitunelib
 		VERSION 0.3.0
