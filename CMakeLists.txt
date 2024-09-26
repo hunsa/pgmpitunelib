@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.22)
 # Prevent CMake from searching the install prefix during the find_* commands
 set(CMAKE_FIND_NO_INSTALL_PREFIX TRUE)
 
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
 project(
 		pgmpitunelib
 		VERSION 0.3.0
@@ -11,6 +14,8 @@ project(
 set(TEST_DIR "${CMAKE_SOURCE_DIR}/test")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 #set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}")
+
+list(APPEND CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_LIBDIR})
 
 find_package(MPI REQUIRED)
 SET(BUILD_SHARED_LIBS 1)
