@@ -34,7 +34,7 @@
 #include "log/zf_log.h"
 
 #include "pgmpi_profile.h"
-#include "src/collectives/collective_modules.h"
+#include "collectives/collective_modules.h"
 
 int pgmpi_profile_allocate(pgmpi_profile_t *profile, const char *mpiname, const int nb_procs,
       const int n_ranges) {

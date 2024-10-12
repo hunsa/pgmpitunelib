@@ -178,7 +178,11 @@ src/pgmpi_mpihook_tuned.c
 SET_TARGET_PROPERTIES(pgmpicli PROPERTIES COMPILE_FLAGS "${MY_COMPILE_FLAGS} -DUSE_PMPI")
 SET_TARGET_PROPERTIES(pgmpicli PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 #SET_TARGET_PROPERTIES(pgmpicli PROPERTIES PUBLIC_HEADER "${PGMPI_HEADERS}")
-target_include_directories(pgmpicli PRIVATE ${MY_EXTERNAL_LIBRARY_INCLUDES})
+target_include_directories(pgmpicli
+		PUBLIC
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>  # When building the project
+		$<INSTALL_INTERFACE:include>                            # When installing the project
+)
 target_link_libraries(pgmpicli ${MY_EXTERNAL_LIBRARY_LIBRARIES} MPI::MPI_C)
 
 #install(TARGETS pgmpicli DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
@@ -223,32 +227,5 @@ if(OPTION_ENABLE_TESTS)
 
 endif()
 
-
-
-
-set(PGMPITUNE_NAME ${CMAKE_PROJECT_NAME}-${CMAKE_PROJECT_VERSION})
-set(DIST_ARCHIVE "${PGMPITUNE_NAME}-dist")
-
-set(CPACK_SOURCE_PACKAGE_FILE_NAME "${PGMPITUNE_NAME}-src")
-set(CPACK_SOURCE_GENERATOR "TBZ2")
-SET(CPACK_SOURCE_IGNORE_FILES
-"/CMakeFiles/"
-"/_CPack_Packages/"
-"/bin/"
-"/lib/"
-"/Makefile"
-"\\\\.tar\\\\.bz2$"
-"/\\\\.git/"
-"/\\\\.settings/"
-"/\\\\..*"
-"CMakeCache.txt"
-"cmake_install\\\\.cmake"
-"CPackConfig\\\\.cmake"
-"CPackSourceConfig\\\\.cmake"
-"sources\\\\.org"
-"${CPACK_SOURCE_IGNORE_FILES}"
-)
-
-INCLUDE(CPack)
 
 
