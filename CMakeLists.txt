@@ -9,6 +9,7 @@ project(
 		LANGUAGES C
 )
 
+include(FetchContent)
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
@@ -38,7 +39,6 @@ option(OPTION_ENABLE_ALGID_STORING "Enable tracing algorithmic IDs" on)
 set(PATH_LANE_COLL "" CACHE STRING "Path to lane collectives")
 set(PATH_CIRCULANTS "" CACHE STRING "Path to circulant collectives")
 set(PATH_SCHEDULE_COLL "" CACHE STRING "Path to schedule collectives")
-
 
 set(OPTION_BUFFER_ALIGNMENT "" CACHE STRING "Alignment in bytes to use for buffer allocation [default: no alignment (allocation with calloc)]")
 
@@ -79,46 +79,65 @@ src/collectives/scatter_impl.c
 )
 
 ###############################################################################
-find_path(CIRC_INCLUDE_DIR mpi_circulants.h PATHS ${PATH_LANE_COLL}/include)
-find_library(CIRC_LIBRARIES NAMES mpicirculants PATHS ${PATH_LANE_COLL}/lib)
-
-if(NOT CIRC_INCLUDE_DIR)
-	message(STATUS "mpi_circulants.h not found. Please set PATH_CIRCULANTS to enable this library.")
-endif()
-
-if(NOT CIRC_LIBRARIES)
-	message(STATUS "Library 'mpicirculants' not found. Please set PATH_CIRCULANTS to enable this library.")
-endif()
-
-if(CIRC_INCLUDE_DIR AND CIRC_LIBRARIES)
-	message(STATUS "Extension: mpi-circulant collectives enabled: ${CIRC_LIBRARIES}")
-	SET(MY_COMPILE_FLAGS "${MY_COMPILE_FLAGS} -DHAVE_CIRCULANTS")
-	SET(HAVE_LANE_COLL 1)
-
-	SET(MY_EXTERNAL_LIBRARY_INCLUDES ${MY_EXTERNAL_LIBRARY_INCLUDES} ${CIRC_INCLUDE_DIR})
-	SET(MY_EXTERNAL_LIBRARY_LIBRARIES ${MY_EXTERNAL_LIBRARY_LIBRARIES} ${CIRC_LIBRARIES})
-endif()
+#find_path(CIRC_INCLUDE_DIR mpi_circulants.h PATHS ${PATH_LANE_COLL}/include)
+#find_library(CIRC_LIBRARIES NAMES mpicirculants PATHS ${PATH_LANE_COLL}/lib)
+#
+#if(NOT CIRC_INCLUDE_DIR)
+#	message(STATUS "mpi_circulants.h not found. Please set PATH_CIRCULANTS to enable this library.")
+#endif()
+#
+#if(NOT CIRC_LIBRARIES)
+#	message(STATUS "Library 'mpicirculants' not found. Please set PATH_CIRCULANTS to enable this library.")
+#endif()
+#
+#if(CIRC_INCLUDE_DIR AND CIRC_LIBRARIES)
+#	message(STATUS "Extension: mpi-circulant collectives enabled: ${CIRC_LIBRARIES}")
+#	SET(MY_COMPILE_FLAGS "${MY_COMPILE_FLAGS} -DHAVE_CIRCULANTS")
+#	SET(HAVE_LANE_COLL 1)
+#
+#	SET(MY_EXTERNAL_LIBRARY_INCLUDES ${MY_EXTERNAL_LIBRARY_INCLUDES} ${CIRC_INCLUDE_DIR})
+#	SET(MY_EXTERNAL_LIBRARY_LIBRARIES ${MY_EXTERNAL_LIBRARY_LIBRARIES} ${CIRC_LIBRARIES})
+#endif()
 
 ###############################################################################
-find_path(LANE_COLL_INCLUDE_DIR tuw_lanecoll.h PATHS ${PATH_LANE_COLL}/include)
-find_library(LANE_COLL_LIBRARIES NAMES lanec PATHS ${PATH_LANE_COLL}/lib)
 
-if(NOT LANE_COLL_INCLUDE_DIR)
-	message(STATUS "tuw_lanecoll.h not found. Please set PATH_LANE_COLL to enable this library.")
-endif()
+FetchContent_Declare(
+		MPI_LANE_COLLECTIVES
+		GIT_REPOSITORY https://github.com/parlab-tuwien/mpi-lane-collectives.git
+		GIT_TAG main
+)
+SET(MY_COMPILE_FLAGS "${MY_COMPILE_FLAGS} -DHAVE_LANE_COLL")
 
-if(NOT LANE_COLL_LIBRARIES)
-	message(STATUS "Library 'lanec' not found. Please set PATH_LANE_COLL to enable this library.")
-endif()
+FetchContent_MakeAvailable(MPI_LANE_COLLECTIVES)
 
-if(LANE_COLL_INCLUDE_DIR AND LANE_COLL_LIBRARIES)
-	message(STATUS "Extension: lane collectives enabled: ${LANE_COLL_LIBRARIES}")
-	SET(MY_COMPILE_FLAGS "${MY_COMPILE_FLAGS} -DHAVE_LANE_COLL")
-	SET(HAVE_LANE_COLL 1)
+FetchContent_Declare(
+		MPI_CIRCULANTS
+		GIT_REPOSITORY git@github.com:parlab-tuwien/mpi-circulant-collectives.git
+		GIT_TAG main
+)
+FetchContent_MakeAvailable(MPI_CIRCULANTS)
 
-	SET(MY_EXTERNAL_LIBRARY_INCLUDES ${MY_EXTERNAL_LIBRARY_INCLUDES} ${LANE_COLL_INCLUDE_DIR})
-	SET(MY_EXTERNAL_LIBRARY_LIBRARIES ${MY_EXTERNAL_LIBRARY_LIBRARIES} ${LANE_COLL_LIBRARIES})
-endif()
+SET(MY_COMPILE_FLAGS "${MY_COMPILE_FLAGS} -DHAVE_CIRCULANTS")
+
+#find_path(LANE_COLL_INCLUDE_DIR tuw_lanecoll.h PATHS ${PATH_LANE_COLL}/include)
+#find_library(LANE_COLL_LIBRARIES NAMES lanec PATHS ${PATH_LANE_COLL}/lib)
+#
+#if(NOT LANE_COLL_INCLUDE_DIR)
+#	message(STATUS "tuw_lanecoll.h not found. Please set PATH_LANE_COLL to enable this library.")
+#endif()
+#
+#if(NOT LANE_COLL_LIBRARIES)
+#	message(STATUS "Library 'lanec' not found. Please set PATH_LANE_COLL to enable this library.")
+#endif()
+
+#if(LANE_COLL_INCLUDE_DIR AND LANE_COLL_LIBRARIES)
+#	message(STATUS "Extension: lane collectives enabled: ${LANE_COLL_LIBRARIES}")
+#	SET(MY_COMPILE_FLAGS "${MY_COMPILE_FLAGS} -DHAVE_LANE_COLL")
+#	SET(HAVE_LANE_COLL 1)
+#
+#	SET(MY_EXTERNAL_LIBRARY_INCLUDES ${MY_EXTERNAL_LIBRARY_INCLUDES} ${LANE_COLL_INCLUDE_DIR})
+#	SET(MY_EXTERNAL_LIBRARY_LIBRARIES ${MY_EXTERNAL_LIBRARY_LIBRARIES} ${LANE_COLL_LIBRARIES})
+#endif()
 
 ###############################################################################
 find_path(SCHEDULE_COLL_INCLUDE_DIR tuw_schedule_collectives.h PATHS ${PATH_SCHEDULE_COLL}/include)
@@ -183,7 +202,7 @@ target_include_directories(pgmpicli
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>  # When building the project
 		$<INSTALL_INTERFACE:include>                            # When installing the project
 )
-target_link_libraries(pgmpicli ${MY_EXTERNAL_LIBRARY_LIBRARIES} MPI::MPI_C)
+target_link_libraries(pgmpicli ${MY_EXTERNAL_LIBRARY_LIBRARIES} mpicirculants lanec MPI::MPI_C)
 
 #install(TARGETS pgmpicli DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 INSTALL(TARGETS pgmpicli
@@ -194,7 +213,7 @@ INSTALL(TARGETS pgmpicli
 SET_TARGET_PROPERTIES(pgmpituned PROPERTIES COMPILE_FLAGS "${MY_COMPILE_FLAGS}")
 SET_TARGET_PROPERTIES(pgmpituned PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 target_include_directories(pgmpituned PRIVATE ${MY_EXTERNAL_LIBRARY_INCLUDES})
-target_link_libraries(pgmpituned ${MY_EXTERNAL_LIBRARY_LIBRARIES} MPI::MPI_C)
+target_link_libraries(pgmpituned ${MY_EXTERNAL_LIBRARY_LIBRARIES} mpicirculants lanec MPI::MPI_C)
 
 
 add_executable(pgmpi_info

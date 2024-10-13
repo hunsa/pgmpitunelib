@@ -17,7 +17,7 @@
 #endif
 
 #ifdef HAVE_CIRCULANTS
-#include "mpi_circulants.h"
+#include "tuw_circulants.h"
 #endif
 
 #ifdef HAVE_SCHEDULE_COLL
