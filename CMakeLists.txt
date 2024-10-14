@@ -221,6 +221,10 @@ src/pgmpi_info.c
 )
 TARGET_LINK_LIBRARIES(pgmpi_info pgmpicli MPI::MPI_C)
 
+install(TARGETS pgmpi_info
+		RUNTIME DESTINATION bin  # For executables
+)
+
 if(OPTION_ENABLE_TESTS)
     add_executable(test1
 		${TEST_DIR}/libtest/test1.c
