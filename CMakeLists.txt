@@ -36,8 +36,8 @@ option(OPTION_ENABLE_DEBUGGING "Enable debugging" off)
 option(OPTION_ENABLE_TESTS "Enable tests" off)
 option(OPTION_ENABLE_ALGID_STORING "Enable tracing algorithmic IDs" on)
 
-set(PATH_LANE_COLL "" CACHE STRING "Path to lane collectives")
-set(PATH_CIRCULANTS "" CACHE STRING "Path to circulant collectives")
+#set(PATH_LANE_COLL "" CACHE STRING "Path to lane collectives")
+#set(PATH_CIRCULANTS "" CACHE STRING "Path to circulant collectives")
 set(PATH_SCHEDULE_COLL "" CACHE STRING "Path to schedule collectives")
 
 set(OPTION_BUFFER_ALIGNMENT "" CACHE STRING "Alignment in bytes to use for buffer allocation [default: no alignment (allocation with calloc)]")
@@ -100,6 +100,24 @@ src/collectives/scatter_impl.c
 #endif()
 
 ###############################################################################
+
+set(PGMPI_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR})
+set(PGMPI_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR})
+set(PGMPI_INSTALL_BINDIR ${CMAKE_INSTALL_BINDIR})
+set(PGMPI_INSTALL_LIBEXECDIR ${CMAKE_INSTALL_LIBEXECDIR})
+set(PGMPI_INSTALL_DATADIR ${CMAKE_INSTALL_DATADIR})
+set(PGMPI_INSTALL_CMAKEDIR ${CMAKE_INSTALL_DATADIR}/cmake/pgmpi)
+
+STRING(COMPARE EQUAL ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR} PGMPI_BUILD_INPLACE)
+if(NOT PGMPI_BUILD_INPLACE)
+	include_directories(BEFORE "${CMAKE_CURRENT_SOURCE_DIR}")
+	include_directories(BEFORE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+	include_directories(BEFORE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+endif(NOT PGMPI_BUILD_INPLACE)
+include_directories(BEFORE "${CMAKE_CURRENT_BINARY_DIR}")
+include_directories(BEFORE "${CMAKE_CURRENT_BINARY_DIR}/include")
+include_directories(BEFORE "${CMAKE_CURRENT_BINARY_DIR}/src")
+
 
 FetchContent_Declare(
 		MPI_LANE_COLLECTIVES
@@ -196,19 +214,45 @@ src/pgmpi_mpihook_tuned.c
 #)
 SET_TARGET_PROPERTIES(pgmpicli PROPERTIES COMPILE_FLAGS "${MY_COMPILE_FLAGS} -DUSE_PMPI")
 SET_TARGET_PROPERTIES(pgmpicli PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+set_target_properties(pgmpicli PROPERTIES PUBLIC_HEADER include/pgmpi_tune.h)
+
 #SET_TARGET_PROPERTIES(pgmpicli PROPERTIES PUBLIC_HEADER "${PGMPI_HEADERS}")
+#target_include_directories(pgmpicli
+#		PUBLIC
+#		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>  # When building the project
+#		$<INSTALL_INTERFACE:include>                            # When installing the project
+#)
+
 target_include_directories(pgmpicli
-		PUBLIC
-		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>  # When building the project
-		$<INSTALL_INTERFACE:include>                            # When installing the project
-)
+		INTERFACE
+		$<INSTALL_INTERFACE:${PGMPI_INSTALL_INCLUDEDIR}>
+		$<$<NOT:${PGMPI_BUILD_INPLACE}>:
+		$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
+		$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>>
+		$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
+		$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
+
+
 target_link_libraries(pgmpicli ${MY_EXTERNAL_LIBRARY_LIBRARIES} mpicirculants lanec MPI::MPI_C)
 
+
+install(TARGETS pgmpicli
+		EXPORT pgmpicli-targets
+		LIBRARY DESTINATION ${PGMPI_INSTALL_LIBDIR}
+		ARCHIVE DESTINATION ${PGMPI_INSTALL_LIBDIR}
+		RUNTIME DESTINATION ${PGMPI_INSTALL_BINDIR}
+		PUBLIC_HEADER DESTINATION ${PGMPI_INSTALL_INCLUDEDIR})
+
+install(EXPORT pgmpicli-targets # rules to export the targets built here
+		FILE PGMPITargets.cmake
+		NAMESPACE PGMPI::
+		DESTINATION ${PGMPI_INSTALL_CMAKEDIR})
+
 #install(TARGETS pgmpicli DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
-INSTALL(TARGETS pgmpicli
-		LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
-#		PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_PREFIX}/include
-)
+#INSTALL(TARGETS pgmpicli
+#		LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+##		PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_PREFIX}/include
+#)
 
 SET_TARGET_PROPERTIES(pgmpituned PROPERTIES COMPILE_FLAGS "${MY_COMPILE_FLAGS}")
 SET_TARGET_PROPERTIES(pgmpituned PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
