@@ -233,8 +233,17 @@ target_include_directories(pgmpicli
 		$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
 
 
-target_link_libraries(pgmpicli ${MY_EXTERNAL_LIBRARY_LIBRARIES} mpicirculants lanec MPI::MPI_C)
+target_link_libraries(pgmpicli PRIVATE
+		${MY_EXTERNAL_LIBRARY_LIBRARIES} mpicirculants lanec MPI::MPI_C)
 
+configure_package_config_file(pgmpicli-config.cmake.in
+		${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/pgmpicli-config.cmake
+		INSTALL_DESTINATION ${PGMPI_INSTALL_CMAKEDIR}
+		PATH_VARS   PGMPI_INSTALL_LIBDIR
+		PGMPI_INSTALL_INCLUDEDIR
+		PGMPI_INSTALL_BINDIR
+		PGMPI_INSTALL_LIBEXECDIR
+		PGMPI_INSTALL_CMAKEDIR)
 
 install(TARGETS pgmpicli
 		EXPORT pgmpicli-targets
@@ -243,9 +252,12 @@ install(TARGETS pgmpicli
 		RUNTIME DESTINATION ${PGMPI_INSTALL_BINDIR}
 		PUBLIC_HEADER DESTINATION ${PGMPI_INSTALL_INCLUDEDIR})
 
+install(FILES ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/pgmpicli-config.cmake
+		DESTINATION ${PGMPI_INSTALL_CMAKEDIR})
+
 install(EXPORT pgmpicli-targets # rules to export the targets built here
-		FILE PGMPITargets.cmake
-		NAMESPACE PGMPI::
+		FILE PGMPICLITargets.cmake
+		NAMESPACE PGMPICLI::
 		DESTINATION ${PGMPI_INSTALL_CMAKEDIR})
 
 #install(TARGETS pgmpicli DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)

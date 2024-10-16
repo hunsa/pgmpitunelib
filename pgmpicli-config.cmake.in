@@ -1,0 +1,18 @@
+# Required for check_language
+include(CheckLanguage)
+
+@PACKAGE_INIT@
+
+set_and_check(PGMPI_DIR "${PACKAGE_PREFIX_DIR}")
+set_and_check(PGMPI_INCLUDE_DIRS "@PACKAGE_PGMPI_INSTALL_INCLUDEDIR@")
+set_and_check(PGMPI_CMAKE_DIRS "@PACKAGE_PGMPI_INSTALL_CMAKEDIR@")
+set_and_check(PGMPI_LIBRARY_DIRS "@PACKAGE_PGMPI_INSTALL_LIBDIR@")
+
+# Pull the dependencies
+list(APPEND CMAKE_PREFIX_PATH "${PGMPI_CMAKE_DIRS}")
+list(APPEND CMAKE_MODULE_PATH "${PGMPI_CMAKE_DIRS}")
+
+# Pull the PGMPI::<targets>
+if(NOT TARGET PGMPI::pgmpicli)
+    include(${CMAKE_CURRENT_LIST_DIR}/PGMPITargets.cmake)
+endif(NOT TARGET PGMPI::pgmpicli)
