@@ -193,7 +193,8 @@ target_include_directories(pgmpicli
 
 
 target_link_libraries(pgmpicli PRIVATE
-		${MY_EXTERNAL_LIBRARY_LIBRARIES} mpicirculants lanec MPI::MPI_C)
+		#${MY_EXTERNAL_LIBRARY_LIBRARIES} mpicirculants lanec MPI::MPI_C)
+		${MY_EXTERNAL_LIBRARY_LIBRARIES} lanec MPI::MPI_C)
 
 configure_package_config_file(pgmpicli-config.cmake.in
 		${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/pgmpicli-config.cmake
@@ -228,7 +229,8 @@ install(EXPORT pgmpicli-targets # rules to export the targets built here
 SET_TARGET_PROPERTIES(pgmpituned PROPERTIES COMPILE_FLAGS "${MY_COMPILE_FLAGS}")
 SET_TARGET_PROPERTIES(pgmpituned PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 target_include_directories(pgmpituned PRIVATE ${MY_EXTERNAL_LIBRARY_INCLUDES})
-target_link_libraries(pgmpituned ${MY_EXTERNAL_LIBRARY_LIBRARIES} mpicirculants lanec MPI::MPI_C)
+#target_link_libraries(pgmpituned ${MY_EXTERNAL_LIBRARY_LIBRARIES} mpicirculants lanec MPI::MPI_C)
+target_link_libraries(pgmpituned ${MY_EXTERNAL_LIBRARY_LIBRARIES} lanec MPI::MPI_C)
 
 
 add_executable(pgmpi_info
