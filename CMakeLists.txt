@@ -130,7 +130,7 @@ FetchContent_MakeAvailable(MPI_LANE_COLLECTIVES)
 
 FetchContent_Declare(
 		MPI_CIRCULANTS
-		GIT_REPOSITORY git@github.com:parlab-tuwien/mpi-circulant-collectives.git
+		GIT_REPOSITORY https://github.com/parlab-tuwien/mpi-circulant-collectives.git
 		GIT_TAG main
 )
 FetchContent_MakeAvailable(MPI_CIRCULANTS)
