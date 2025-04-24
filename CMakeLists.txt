@@ -9,6 +9,8 @@ project(
 		LANGUAGES C
 )
 
+set(CMAKE_INSTALL_LIBDIR lib CACHE STRING "Library install directory" FORCE)
+
 include(FetchContent)
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
